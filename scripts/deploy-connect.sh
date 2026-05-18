@@ -48,10 +48,10 @@ fi
 echo -e "${GREEN}  ✅ Build concluído${NC}"
 
 
-# Garante que o diretório remoto existe e permissões para ubuntu
-ssh -i "$KEY_FILE" -o StrictHostKeyChecking=no ubuntu@"$SERVER_IP" "sudo mkdir -p /home/ubuntu/mex-connect/ && sudo chown -R ubuntu:ubuntu /home/ubuntu/mex-connect/ && sudo chmod -R u+rwX /home/ubuntu/mex-connect/"
+# Garante que o diretório remoto e subpastas existem e permissões para ubuntu
+ssh -i "$KEY_FILE" -o StrictHostKeyChecking=no ubuntu@"$SERVER_IP" "sudo mkdir -p /home/ubuntu/mex-connect/assets/logos && sudo chown -R ubuntu:ubuntu /home/ubuntu/mex-connect/ && sudo chmod -R u+rwX /home/ubuntu/mex-connect/"
 
-# Envia todos os arquivos do dist para o destino correto
+# Envia todo o conteúdo de dist (incluindo subpastas)
 scp -i "$KEY_FILE" -o StrictHostKeyChecking=no -r "$PROJ_DIR/dist/"* ubuntu@"$SERVER_IP":/home/ubuntu/mex-connect/
 if [ $? -ne 0 ]; then
   echo -e "${RED}❌ Falha ao enviar arquivos para o servidor.${NC}"
