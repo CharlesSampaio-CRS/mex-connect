@@ -58,33 +58,5 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# Atualiza configuração do Nginx
-scp -i "$KEY_FILE" -o StrictHostKeyChecking=no "$NGINX_CONF_LOCAL" ubuntu@"$SERVER_IP":/tmp/mex-connect.conf
-ssh -i "$KEY_FILE" -o StrictHostKeyChecking=no ubuntu@"$SERVER_IP" "sudo mv /tmp/mex-connect.conf $NGINX_CONF_REMOTE && sudo ln -sf $NGINX_CONF_REMOTE /etc/nginx/sites-enabled/mex-connect.conf"
-
-# Remove possíveis conflitos antigos
-ssh -i "$KEY_FILE" -o StrictHostKeyChecking=no ubuntu@"$SERVER_IP" "sudo rm -f /etc/nginx/sites-enabled/mex.app.br /etc/nginx/sites-enabled/default /etc/nginx/conf.d/mex-connect.conf /etc/nginx/conf.d/default.conf"
-
-# Garante apenas o novo conf ativo
-ssh -i "$KEY_FILE" -o StrictHostKeyChecking=no ubuntu@"$SERVER_IP" "sudo ln -sf $NGINX_CONF_REMOTE /etc/nginx/sites-enabled/mex-connect.conf"
-
-# Corrige permissões dos arquivos do site para www-data e garante acesso do Nginx
-ssh -i "$KEY_FILE" -o StrictHostKeyChecking=no ubuntu@"$SERVER_IP" "sudo chown -R www-data:www-data /home/ubuntu/mex-connect/ && sudo chmod -R 755 /home/ubuntu/mex-connect/ && sudo chmod o+x /home/ubuntu && sudo chmod -R o+rx /home/ubuntu/mex-connect"
-
-# Testa configuração do Nginx
-ssh -i "$KEY_FILE" -o StrictHostKeyChecking=no ubuntu@"$SERVER_IP" "sudo nginx -t"
-
-# Recarrega Nginx
-ssh -i "$KEY_FILE" -o StrictHostKeyChecking=no ubuntu@"$SERVER_IP" "sudo systemctl reload nginx && echo 'Nginx recarregado com sucesso.' || echo 'Falha ao recarregar Nginx.'"
-
-# Mostra arquivos no diretório do site
-ssh -i "$KEY_FILE" -o StrictHostKeyChecking=no ubuntu@"$SERVER_IP" "ls -l /home/ubuntu/mex-connect/"
-
-# Mostra últimos erros do Nginx
-ssh -i "$KEY_FILE" -o StrictHostKeyChecking=no ubuntu@"$SERVER_IP" "sudo tail -n 30 /var/log/nginx/error.log"
-
-# Teste HTTP automático do /connect
-curl -I https://mex.app.br/connect || curl -I http://mex.app.br/connect
-curl https://mex.app.br/connect || curl http://mex.app.br/connect
 
 echo -e "${BLUE}Deploy do mex-connect finalizado!${NC}"
