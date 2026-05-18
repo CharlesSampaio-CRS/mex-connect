@@ -1,0 +1,848 @@
+<!DOCTYPE html><!-- connect · v1.1.17 -->
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conectar Exchange — MEX</title>
+  <link rel="icon" type="image/png" href="/assets/adaptive-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:          #f1f3f8;
+      --surface:     #ffffff;
+      --surface2:    #f6f7fb;
+      --surface3:    #eceef5;
+      --border:      rgba(0,0,0,.07);
+      --border-mid:  rgba(0,0,0,.10);
+      --primary:     #6d5df5;
+      --primary-10:  rgba(109,93,245,.08);
+      --primary-20:  rgba(109,93,245,.15);
+      --primary-30:  rgba(109,93,245,.22);
+      --primary-h:   #8070f7;
+      --text:        #16162a;
+      --text2:       #64647e;
+      --text3:       #a4a4bc;
+      --danger:      #dc2626;
+      --danger-bg:   rgba(220,38,38,.06);
+      --danger-bd:   rgba(220,38,38,.18);
+      --success:     #16a34a;
+      --success-bg:  rgba(22,163,74,.07);
+      --success-bd:  rgba(22,163,74,.20);
+      --warn:        #b45309;
+      --warn-bg:     rgba(180,83,9,.07);
+      --warn-bd:     rgba(180,83,9,.20);
+      --r-sm:  8px;
+      --r-md:  12px;
+      --r-lg:  16px;
+      --r-xl:  20px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center;
+      padding: 32px 16px 52px;
+      position: relative; overflow-x: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% -10%, rgba(109,93,245,.05) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 940px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-mark {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--primary) 0%, #5244d4 100%);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(109,93,245,.25); flex-shrink: 0;
+    }
+    .logo-mark svg { width: 18px; height: 18px; fill: #fff; }
+    .logo-text { font-size: 17px; font-weight: 800; letter-spacing: -.5px; color: var(--text); }
+    .logo-text span { color: var(--primary); }
+    .header-session { display: none; align-items: center; gap: 10px; }
+    .header-session.visible { display: flex; }
+    .header-user { font-size: 12px; color: var(--text2); text-align: right; line-height: 1.4; }
+    .header-user strong { display: block; color: var(--text); font-weight: 600; font-size: 13px; }
+    .btn-end-session {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: transparent; border: 1px solid var(--border-mid);
+      border-radius: var(--r-sm); color: var(--text3);
+      font-size: 12px; font-weight: 500; padding: 6px 12px;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: border-color .18s, color .18s, background .18s; white-space: nowrap;
+    }
+    .btn-end-session:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); }
+    .btn-end-session svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+
+    /* ── App layout ── */
+    .app-layout {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 460px;
+      display: flex; flex-direction: column; gap: 16px;
+      transition: max-width .3s ease;
+    }
+    .app-layout.with-sidebar {
+      max-width: 940px;
+      flex-direction: row;
+      align-items: flex-start;
+    }
+    @media (max-width: 720px) {
+      .app-layout.with-sidebar { flex-direction: column; max-width: 460px; }
+    }
+
+    /* ── Sidebar ── */
+    .sidebar { display: none; flex-direction: column; width: 264px; flex-shrink: 0; gap: 10px; }
+    .sidebar.visible { display: flex; }
+    @media (max-width: 720px) { .sidebar { width: 100%; order: 2; } }
+
+    .sb-card {
+      background: var(--surface);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--r-xl);
+      overflow: hidden;
+      box-shadow: 0 1px 0 0 rgba(255,255,255,.8) inset, 0 4px 24px rgba(0,0,0,.07), 0 1px 3px rgba(0,0,0,.04);
+    }
+    .sb-section-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 1.4px; text-transform: uppercase;
+      color: var(--text3); padding: 14px 16px 8px;
+    }
+    .sb-list { display: flex; flex-direction: column; padding: 0 8px 10px; gap: 2px; }
+    .sb-empty { font-size: 12.5px; color: var(--text3); text-align: center; padding: 12px 16px 16px; line-height: 1.5; }
+    .sb-loading {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; padding: 16px; font-size: 12.5px; color: var(--text3);
+    }
+    .spinner-sm {
+      width: 14px; height: 14px;
+      border: 2px solid var(--border-mid); border-top-color: var(--primary);
+      border-radius: 50%; animation: spin .6s linear infinite;
+    }
+    .sb-item {
+      display: flex; align-items: center; gap: 10px;
+      border-radius: var(--r-sm); padding: 8px;
+      transition: background .15s;
+    }
+    .sb-item:hover { background: var(--surface2); }
+    .sb-item-icon {
+      width: 28px; height: 28px; border-radius: 7px;
+      object-fit: contain; flex-shrink: 0; background: var(--surface2);
+    }
+    .sb-item-info { flex: 1; min-width: 0; }
+    .sb-item-name { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.2; }
+    .sb-item-type { font-size: 11px; color: var(--text3); margin-top: 2px; }
+    .sb-item-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--success); flex-shrink: 0;
+    }
+    .sb-item-dot.inactive { background: var(--text3); }
+    .sb-add-btn {
+      display: flex; align-items: center; gap: 8px;
+      width: calc(100% - 16px); margin: 0 8px 10px;
+      background: var(--primary-10); border: 1px dashed var(--primary-20);
+      border-radius: var(--r-sm); color: var(--primary);
+      font-size: 12.5px; font-weight: 500; padding: 8px 10px;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: background .15s, border-color .15s;
+    }
+    .sb-add-btn:hover { background: var(--primary-20); border-color: var(--primary-30); }
+    .sb-add-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; flex-shrink: 0; }
+
+    /* ── Main column ── */
+    .main-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+
+    /* ── Card ── */
+    .card {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--border-mid); border-radius: var(--r-xl); overflow: hidden;
+      box-shadow: 0 1px 0 0 rgba(255,255,255,.8) inset, 0 4px 24px rgba(0,0,0,.07), 0 1px 3px rgba(0,0,0,.04);
+    }
+    .card-top-bar { height: 2px; background: linear-gradient(90deg, var(--primary) 0%, rgba(109,93,245,.15) 100%); }
+    .card-body { padding: 26px 26px 30px; }
+    @media (max-width: 480px) { .card-body { padding: 20px 18px 26px; } }
+
+    /* ── Panels ── */
+    .panel { display: none; animation: panelIn .22s ease both; }
+    .panel.active { display: block; }
+    @keyframes panelIn { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Panel header ── */
+    .panel-header { margin-bottom: 22px; }
+    .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--primary); margin-bottom: 7px; }
+    .panel-title { font-size: 19px; font-weight: 700; letter-spacing: -.3px; line-height: 1.25; }
+    .panel-sub { font-size: 13px; color: var(--text2); margin-top: 5px; line-height: 1.65; }
+    .divider { height: 1px; background: var(--border); margin: 18px 0; }
+    .section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--text3); margin-bottom: 9px; }
+
+    /* ── Session badge ── */
+    .session-badge {
+      display: none; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--text3);
+      background: var(--surface2); border: 1px solid var(--border-mid);
+      border-radius: 6px; padding: 5px 10px; margin-bottom: 18px;
+      font-family: 'Courier New', monospace;
+    }
+    .session-badge.visible { display: inline-flex; }
+    .session-badge svg { width: 11px; height: 11px; stroke: var(--text3); fill: none; stroke-width: 1.8; flex-shrink: 0; }
+
+    /* ── Alert ── */
+    .alert {
+      display: flex; align-items: flex-start; gap: 10px;
+      border-radius: var(--r-md); padding: 11px 13px;
+      font-size: 12.5px; line-height: 1.5; margin-bottom: 16px;
+      opacity: 0; transform: translateY(-4px);
+      transition: opacity .2s, transform .2s; pointer-events: none;
+    }
+    .alert.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .alert svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
+    .alert.error   { background: var(--danger-bg);  border: 1px solid var(--danger-bd);  color: #b91c1c; }
+    .alert.error svg { fill: var(--danger); }
+    .alert.success { background: var(--success-bg); border: 1px solid var(--success-bd); color: #166534; }
+    .alert.success svg { fill: var(--success); }
+
+    /* ── Exchange grid ── */
+    .exchange-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 20px; }
+    @media (max-width: 380px) { .exchange-grid { grid-template-columns: repeat(3, 1fr); } }
+    .exc-btn {
+      position: relative;
+      background: var(--surface2); border: 1.5px solid transparent;
+      border-radius: var(--r-md); padding: 9px 5px 7px;
+      cursor: pointer; text-align: center;
+      transition: border-color .16s, background .16s, transform .13s, box-shadow .16s;
+      color: var(--text); outline: none; -webkit-tap-highlight-color: transparent;
+    }
+    .exc-btn:hover { background: var(--surface3); border-color: var(--border-mid); transform: translateY(-1px); }
+    .exc-btn:active { transform: translateY(0); }
+    .exc-btn.selected { border-color: var(--primary); background: var(--primary-10); box-shadow: 0 0 0 3px var(--primary-10); }
+    .exc-btn img { width: 26px; height: 26px; object-fit: contain; border-radius: 6px; display: block; margin: 0 auto 5px; }
+    .exc-name { font-size: 9.5px; font-weight: 500; color: var(--text2); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .exc-btn.selected .exc-name { color: var(--primary-h); }
+    .exc-badge { position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; background: var(--warn); border-radius: 50%; }
+
+    /* ── Fields ── */
+    .field { margin-bottom: 13px; }
+    label { display: block; font-size: 11px; font-weight: 600; letter-spacing: .4px; color: var(--text2); margin-bottom: 5px; }
+    .input-wrap { position: relative; }
+    .input-wrap svg {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      width: 14px; height: 14px; fill: none; stroke: var(--text3); stroke-width: 1.6; pointer-events: none;
+    }
+    .input-wrap input, .input-wrap textarea { padding-left: 34px !important; }
+    input[type="text"], input[type="password"], textarea {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border-mid);
+      border-radius: var(--r-sm); color: var(--text); font-size: 13px; padding: 9px 11px; outline: none;
+      transition: border-color .16s, box-shadow .16s, background .16s;
+      font-family: 'Courier New', Courier, monospace; resize: none;
+    }
+    input:focus, textarea:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px var(--primary-10); }
+    input::placeholder, textarea::placeholder { color: var(--text3); font-family: 'Inter', sans-serif; }
+    textarea { min-height: 60px; line-height: 1.5; }
+    .hint { font-size: 11px; color: var(--text3); margin-top: 4px; line-height: 1.55; }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; background: var(--primary); color: #fff;
+      border: none; border-radius: var(--r-md);
+      font-size: 14px; font-weight: 600; padding: 12px;
+      cursor: pointer; margin-top: 16px;
+      font-family: 'Inter', sans-serif; letter-spacing: -.1px;
+      transition: background .16s, box-shadow .16s, transform .12s, opacity .16s;
+      -webkit-tap-highlight-color: transparent; position: relative; overflow: hidden;
+    }
+    .btn-primary::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 100%); pointer-events: none;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-h); box-shadow: 0 6px 18px rgba(109,93,245,.25); transform: translateY(-1px); }
+    .btn-primary:active:not(:disabled) { transform: translateY(0); box-shadow: none; }
+    .btn-primary:disabled { opacity: .38; cursor: not-allowed; }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: transparent; border: 1px solid var(--border-mid);
+      border-radius: var(--r-sm); color: var(--text2);
+      font-size: 12.5px; font-weight: 500; padding: 7px 14px;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: border-color .16s, color .16s, background .16s; -webkit-tap-highlight-color: transparent;
+    }
+    .btn-ghost:hover { border-color: var(--primary); color: var(--primary-h); background: var(--primary-10); }
+    .btn-ghost svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+
+    /* ── Spinner ── */
+    .spinner { width: 15px; height: 15px; border: 2px solid rgba(255,255,255,.25); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── QR panel ── */
+    .qr-panel { text-align: center; }
+    .qr-panel .panel-header { margin-bottom: 24px; }
+    .qr-wrap {
+      background: #fff; border-radius: var(--r-lg); padding: 11px;
+      display: inline-block; margin-bottom: 22px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08); border: 1px solid var(--border);
+    }
+    .qr-wrap img { display: block; width: 178px; height: 178px; border-radius: 3px; }
+    .qr-steps {
+      display: flex; flex-direction: column; gap: 9px; text-align: left;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--r-md); padding: 14px; margin-bottom: 18px;
+    }
+    .qr-step { display: flex; align-items: center; gap: 11px; font-size: 12.5px; color: var(--text2); line-height: 1.4; }
+    .qr-step-num {
+      width: 20px; height: 20px; background: var(--primary-10); border: 1px solid var(--primary-20);
+      border-radius: 50%; font-size: 10.5px; font-weight: 700; color: var(--primary);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .qr-status {
+      font-size: 12.5px; color: var(--text2);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 18px; margin-bottom: 14px;
+    }
+    .status-dot { width: 7px; height: 7px; background: var(--primary); border-radius: 50%; animation: pulse-dot 1.4s ease infinite; }
+    @keyframes pulse-dot { 0%,100% { opacity: .3; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.2); } }
+
+    /* ── State panels ── */
+    .state-panel { text-align: center; padding: 10px 0; }
+    .state-icon-wrap { width: 68px; height: 68px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; }
+    .state-icon-wrap.success { background: var(--success-bg); border: 1px solid var(--success-bd); }
+    .state-icon-wrap.warn    { background: var(--warn-bg);    border: 1px solid var(--warn-bd); }
+    .state-icon-wrap.danger  { background: var(--danger-bg);  border: 1px solid var(--danger-bd); }
+    .state-icon-wrap svg { width: 30px; height: 30px; }
+    .state-title { font-size: 19px; font-weight: 700; letter-spacing: -.3px; margin-bottom: 8px; }
+    .state-sub { font-size: 13.5px; color: var(--text2); line-height: 1.65; max-width: 300px; margin: 0 auto; }
+    .state-actions { margin-top: 22px; display: flex; flex-direction: column; gap: 9px; align-items: center; }
+
+    /* ── Security notice ── */
+    .security-notice {
+      display: flex; align-items: flex-start; gap: 9px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--r-md); padding: 11px 13px; margin-top: 16px;
+    }
+    .security-notice svg { width: 14px; height: 14px; fill: var(--text3); flex-shrink: 0; margin-top: 1px; }
+    .security-notice p { font-size: 11px; color: var(--text3); line-height: 1.6; }
+
+    /* ── Footer ── */
+    .page-footer { font-size: 11.5px; color: var(--text3); text-align: center; line-height: 1.7; }
+    .page-footer a { color: var(--text3); text-decoration: underline; text-underline-offset: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- Header: logo + session info -->
+<header class="page-header">
+  <a href="https://mex.app.br" class="logo" tabindex="-1">
+    <div class="logo-mark">
+      <img src="/assets/logos/adaptive-icon.png" alt="Logo Mex" style="width: 28px; height: 28px; display: block;" />
+    </div>
+    <div class="logo-text">mex<span>.app.br</span></div>
+  </a>
+
+  <div class="header-session" id="headerSession">
+    <div class="header-user">
+      <strong id="headerUserName"></strong>
+      <span id="headerUserEmail"></span>
+    </div>
+    <button class="btn-end-session" onclick="handleLogout()">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Encerrar sessão
+    </button>
+  </div>
+</header>
+
+<!-- Two-column layout -->
+<div class="app-layout" id="appLayout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-card">
+      <p class="sb-section-label">Exchanges conectadas</p>
+      <div class="sb-list" id="sbList">
+        <div class="sb-loading" id="sbLoading">
+          <div class="spinner-sm"></div><span>Carregando…</span>
+        </div>
+      </div>
+      <button class="sb-add-btn" onclick="scrollToForm()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Conectar nova exchange
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN COLUMN -->
+  <div class="main-col" id="mainCol">
+    <div class="card" id="mainCard">
+      <div class="card-top-bar"></div>
+      <div class="card-body">
+
+        <!-- PANEL: QR LOGIN -->
+        <div class="panel qr-panel" id="panelQrLogin">
+          <div class="panel-header">
+            <p class="eyebrow">Autenticação web</p>
+            <p class="panel-title">Escaneie com o app</p>
+            <p class="panel-sub">Abra o MEX no celular e escaneie para autenticar.</p>
+          </div>
+          <div class="qr-wrap"><img id="qrLoginImg" src="" alt="QR Code de autenticação" /></div>
+          <div class="qr-steps">
+            <div class="qr-step"><div class="qr-step-num">1</div><span>Abra o app <strong style="color:var(--text)">MEX</strong> no celular</span></div>
+            <div class="qr-step"><div class="qr-step-num">2</div><span>Toque em <strong style="color:var(--text)">Exchanges → Web</strong></span></div>
+            <div class="qr-step"><div class="qr-step-num">3</div><span>Aponte a câmera para o QR Code acima</span></div>
+          </div>
+          <div class="qr-status" id="qrLoginStatus">
+            <div class="status-dot"></div>
+            <span id="qrLoginStatusText">Aguardando leitura…</span>
+          </div>
+          <button class="btn-ghost" onclick="startQrLoginFlow()">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+            Gerar novo QR
+          </button>
+        </div>
+
+        <!-- PANEL: SUCESSO exchange conectada -->
+        <div class="panel state-panel" id="panelSuccess">
+          <div class="state-icon-wrap success">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <p class="state-title">Exchange conectada!</p>
+          <p class="state-sub">Credenciais salvas com segurança. Conecte mais uma ou feche esta aba.</p>
+          <div class="state-actions">
+            <button class="btn-ghost" onclick="connectAnother()">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Conectar outra exchange
+            </button>
+            <button class="btn-ghost" onclick="window.close()">
+              <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              Fechar aba
+            </button>
+          </div>
+        </div>
+
+        <!-- PANEL: EXPIRADO -->
+        <div class="panel state-panel" id="panelExpired">
+          <div class="state-icon-wrap warn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <p class="state-title">Sessão expirada</p>
+          <p class="state-sub">Este QR Code não é mais válido. Abra o app MEX e gere um novo.</p>
+        </div>
+
+        <!-- PANEL: INVÁLIDO -->
+        <div class="panel state-panel" id="panelInvalid">
+          <div class="state-icon-wrap danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <p class="state-title">Link inválido</p>
+          <p class="state-sub">Este link não é válido ou expirou. Abra o app MEX e gere um novo QR code.</p>
+        </div>
+
+        <!-- PANEL: REVOGADO PELO APP -->
+        <div class="panel state-panel" id="panelRevoked">
+          <div class="state-icon-wrap warn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </div>
+          <p class="state-title">Sessão encerrada</p>
+          <p class="state-sub">O app MEX encerrou esta sessão web. Escaneie um novo QR code para continuar.</p>
+          <div class="state-actions">
+            <button class="btn-ghost" onclick="startQrLoginFlow()">
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+              Novo QR Code
+            </button>
+          </div>
+        </div>
+
+        <!-- PANEL: FORMULÁRIO -->
+        <div class="panel" id="panelForm">
+          <div class="panel-header">
+            <p class="eyebrow">API Keys</p>
+            <p class="panel-title">Conectar exchange</p>
+            <p class="panel-sub">Selecione a exchange e cole suas chaves de API.</p>
+          </div>
+
+          <div class="session-badge" id="tokenBadge">
+            <svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            <span id="tokenBadgeText"></span>
+          </div>
+
+          <div class="alert error" id="alertError" role="alert">
+            <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span id="alertErrorText"></span>
+          </div>
+
+          <p class="section-label">Selecione a exchange</p>
+          <div class="exchange-grid" id="exchangeGrid"></div>
+
+          <div class="divider"></div>
+
+          <div class="field">
+            <label for="apiKey">API Key *</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+              <textarea id="apiKey" placeholder="Cole sua API Key aqui" rows="2" spellcheck="false" autocorrect="off" autocapitalize="off"></textarea>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="apiSecret">API Secret *</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <textarea id="apiSecret" placeholder="Cole seu API Secret aqui" rows="2" spellcheck="false" autocorrect="off" autocapitalize="off"></textarea>
+            </div>
+          </div>
+
+          <div class="field" id="passphraseField" style="display:none">
+            <label for="passphrase">Passphrase *</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <input type="password" id="passphrase" placeholder="Passphrase da exchange" autocomplete="off" />
+            </div>
+            <p class="hint">Esta exchange exige uma passphrase além da API Key e Secret.</p>
+          </div>
+
+          <div class="field" id="uidField" style="display:none">
+            <label id="uidLabel" for="uid">Memo (UID) *</label>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="uid" inputmode="numeric" placeholder="Cole seu Memo/UID aqui" autocomplete="off" />
+            </div>
+            <p class="hint" id="uidHint">Número de identificação da sua conta.</p>
+          </div>
+
+          <button class="btn-primary" id="submitBtn" onclick="handleSubmit()">
+            Conectar exchange
+          </button>
+
+          <div class="security-notice">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <p>Chaves criptografadas de ponta a ponta. O MEX nunca solicita permissão de saque.</p>
+          </div>
+        </div>
+
+      </div><!-- /card-body -->
+    </div><!-- /card -->
+
+    <p class="page-footer">
+      mex.app.br &nbsp;·&nbsp; <a href="https://mex.app.br/privacy-policy" target="_blank">Privacidade</a> &nbsp;·&nbsp; <a href="https://mex.app.br/terms" target="_blank">Termos</a>
+    </p>
+  </div><!-- /main-col -->
+
+</div><!-- /app-layout -->
+
+<script>
+  const API_BASE = 'https://api.mex.app.br/api/v1';
+
+  const EXCHANGES = [
+    { id: 'binance',  name: 'Binance',        icon: 'https://mex.app.br/assets/binance.png',   passphrase: false, uid: false },
+    { id: 'bybit',    name: 'Bybit',           icon: 'https://mex.app.br/assets/bybit.png',     passphrase: false, uid: false },
+    { id: 'okx',      name: 'OKX',             icon: 'https://mex.app.br/assets/okx.png',       passphrase: true,  uid: false },
+    { id: 'kucoin',   name: 'KuCoin',          icon: 'https://mex.app.br/assets/kucoin.png',    passphrase: true,  uid: false },
+    { id: 'mexc',     name: 'MEXC',            icon: 'https://mex.app.br/assets/mexc.png',      passphrase: false, uid: false },
+    { id: 'gateio',   name: 'Gate.io',         icon: 'https://mex.app.br/assets/gateio.png',    passphrase: false, uid: false },
+    { id: 'kraken',   name: 'Kraken',          icon: 'https://mex.app.br/assets/kraken.png',    passphrase: false, uid: false },
+    { id: 'coinbase', name: 'Coinbase',        icon: 'https://mex.app.br/assets/coinbase.png',  passphrase: false, uid: false },
+    { id: 'bitget',   name: 'Bitget',          icon: 'https://mex.app.br/assets/bitget.png',    passphrase: true,  uid: false },
+    { id: 'bitmart',  name: 'BitMart',         icon: 'https://mex.app.br/assets/bitmart.png',   passphrase: false, uid: true, uidLabel: 'Memo (UID)', uidHint: 'Encontre em Perfil → Account Settings → Account ID.' },
+    { id: 'coinex',   name: 'CoinEx',          icon: 'https://mex.app.br/assets/coinex.png',    passphrase: false, uid: false },
+    { id: 'novadax',  name: 'NovaDAX',         icon: 'https://mex.app.br/assets/novadax.png',   passphrase: false, uid: false },
+    { id: 'mercado',  name: 'Mercado Bitcoin', icon: 'https://mex.app.br/assets/mercado.png',   passphrase: false, uid: false },
+  ];
+
+  let sessionToken     = null;
+  let selectedExchange = null;
+  let pollTimer        = null;
+  let qrPollTimer      = null;
+  let currentPanel     = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    buildExchangeGrid();
+    const params = new URLSearchParams(window.location.search);
+    sessionToken = params.get('token');
+    if (!sessionToken) { startQrLoginFlow(); return; }
+    activateSession(sessionToken, null, null);
+    checkStatus(true);
+  });
+
+  // Encerra sessão automaticamente ao fechar/navegar para fora da aba
+  window.addEventListener('pagehide', () => {
+    if (!sessionToken) return;
+    try {
+      navigator.sendBeacon(`${API_BASE}/connect/session/${sessionToken}/end-beacon`);
+    } catch (_) {}
+    // Fallback keepalive para browsers que suportam
+    try {
+      fetch(`${API_BASE}/connect/session/${sessionToken}/end`, { method: 'DELETE', keepalive: true });
+    } catch (_) {}
+  });
+
+  // ── Activate session: show sidebar, load data ──────────────────────
+  function activateSession(token, userName, userEmail) {
+    sessionToken = token;
+
+    const hs = document.getElementById('headerSession');
+    hs.classList.add('visible');
+    if (userName) {
+      document.getElementById('headerUserName').textContent = userName;
+      document.getElementById('headerUserEmail').textContent = userEmail || '';
+    }
+
+    document.getElementById('appLayout').classList.add('with-sidebar');
+    document.getElementById('sidebar').classList.add('visible');
+
+    const badge = document.getElementById('tokenBadge');
+    badge.classList.add('visible');
+    document.getElementById('tokenBadgeText').textContent = 'Sessão: ' + token.slice(0, 8) + '…';
+
+    loadConnectedExchanges();
+  }
+
+  // ── Load connected exchanges into sidebar ──────────────────────────
+  async function loadConnectedExchanges() {
+    const list = document.getElementById('sbList');
+    list.innerHTML = '<div class="sb-loading"><div class="spinner-sm"></div><span>Carregando…</span></div>';
+    try {
+      const res  = await fetch(`${API_BASE}/connect/session/${sessionToken}/data`);
+      if (!res.ok) { renderSidebarError(); return; }
+      const data = await res.json();
+      const exchanges = data.connected_exchanges || [];
+      if (exchanges.length === 0) {
+        list.innerHTML = '<p class="sb-empty">Nenhuma exchange conectada ainda.<br>Use o formulário ao lado.</p>';
+        return;
+      }
+      list.innerHTML = '';
+      exchanges.forEach(exc => {
+        const icon = 'https://mex.app.br/assets/' + exc.exchange_type + '.png';
+        const item = document.createElement('div');
+        item.className = 'sb-item';
+        item.innerHTML =
+          '<img class="sb-item-icon" src="' + icon + '" alt="' + exc.display_name + '" onerror="this.style.opacity=\'.3\'" loading="lazy" />' +
+          '<div class="sb-item-info">' +
+            '<div class="sb-item-name">' + exc.display_name + '</div>' +
+            '<div class="sb-item-type">' + exc.exchange_type + '</div>' +
+          '</div>' +
+          '<div class="sb-item-dot' + (exc.is_active ? '' : ' inactive') + '" title="' + (exc.is_active ? 'Ativa' : 'Inativa') + '"></div>';
+        list.appendChild(item);
+      });
+    } catch (e) {
+      renderSidebarError();
+    }
+  }
+
+  function renderSidebarError() {
+    document.getElementById('sbList').innerHTML = '<p class="sb-empty">Não foi possível carregar.<br>Tente recarregar a página.</p>';
+  }
+
+  // ── Logout ─────────────────────────────────────────────────────────
+  async function handleLogout() {
+    if (!confirm('Encerrar esta sessão web?\n\nVocê precisará escanear um novo QR code para reconectar.')) return;
+    try { await fetch(`${API_BASE}/connect/session/${sessionToken}/end`, { method: 'DELETE' }); } catch {}
+    sessionToken = null;
+    document.getElementById('headerSession').classList.remove('visible');
+    document.getElementById('headerUserName').textContent = '';
+    document.getElementById('headerUserEmail').textContent = '';
+    document.getElementById('appLayout').classList.remove('with-sidebar');
+    document.getElementById('sidebar').classList.remove('visible');
+    document.getElementById('tokenBadge').classList.remove('visible');
+    clearInterval(pollTimer); pollTimer = null;
+    startQrLoginFlow();
+  }
+
+  // ── QR Login flow ──────────────────────────────────────────────────
+  async function startQrLoginFlow() {
+    showPanel('qrLogin');
+    setQrStatus('loading', 'Gerando QR Code…');
+    document.getElementById('qrLoginImg').src = '';
+    clearInterval(qrPollTimer); qrPollTimer = null;
+    try {
+      const res  = await fetch(`${API_BASE}/auth/web-session`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Erro ao criar sessão');
+      const qrToken = data.token;
+      const qrUrl   = data.qr_url;
+      const qrImg   = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data=' + encodeURIComponent(qrUrl);
+      document.getElementById('qrLoginImg').src = qrImg;
+      setQrStatus('loading', 'Aguardando leitura pelo app…');
+      qrPollTimer = setInterval(async () => {
+        try {
+          const r = await fetch(`${API_BASE}/auth/web-session/${qrToken}`);
+          if (!r.ok) { clearInterval(qrPollTimer); showPanel('invalid'); return; }
+          const s = await r.json();
+          if (s.status === 'approved' && s.connect_token) {
+            clearInterval(qrPollTimer);
+            // Use connect_token (not qrToken) as the session token for all /connect/session/ calls
+            activateSession(s.connect_token, s.user_name || null, s.user_email || null);
+            showPanel('form');
+          } else if (s.status === 'expired') {
+            clearInterval(qrPollTimer);
+            setQrStatus('idle', 'QR Code expirado. Clique em "Gerar novo QR".');
+          }
+        } catch {}
+      }, 2500);
+    } catch (e) {
+      setQrStatus('idle', e.message || 'Erro ao gerar QR Code');
+    }
+  }
+
+  function setQrStatus(type, text) {
+    const wrap = document.getElementById('qrLoginStatus');
+    const span = document.getElementById('qrLoginStatusText');
+    span.textContent = text;
+    const dot = wrap.querySelector('.status-dot');
+    if (dot) dot.style.display = (type === 'loading') ? '' : 'none';
+  }
+
+  // ── Exchange grid ──────────────────────────────────────────────────
+  function buildExchangeGrid() {
+    const grid = document.getElementById('exchangeGrid');
+    grid.innerHTML = '';
+    EXCHANGES.forEach(exc => {
+      const btn = document.createElement('button');
+      btn.className = 'exc-btn';
+      btn.type = 'button';
+      btn.dataset.id = exc.id;
+      btn.onclick = () => selectExchange(exc);
+      btn.innerHTML =
+        ((exc.passphrase || exc.uid) ? '<div class="exc-badge" title="Requer campo extra"></div>' : '') +
+        '<img src="' + exc.icon + '" alt="' + exc.name + '" loading="lazy" onerror="this.style.opacity=\'.3\'" />' +
+        '<div class="exc-name">' + exc.name + '</div>';
+      grid.appendChild(btn);
+    });
+  }
+
+  function selectExchange(exc) {
+    selectedExchange = exc;
+    document.querySelectorAll('.exc-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelector('.exc-btn[data-id="' + exc.id + '"]').classList.add('selected');
+    document.getElementById('passphraseField').style.display = exc.passphrase ? 'block' : 'none';
+    document.getElementById('uidField').style.display = exc.uid ? 'block' : 'none';
+    if (exc.uid) {
+      document.getElementById('uidLabel').textContent = (exc.uidLabel || 'Memo (UID)') + ' *';
+      document.getElementById('uid').placeholder = 'Cole seu ' + (exc.uidLabel || 'Memo (UID)');
+      document.getElementById('uidHint').textContent = exc.uidHint || 'Número de identificação da sua conta.';
+    } else { document.getElementById('uid').value = ''; }
+    if (!exc.passphrase) document.getElementById('passphrase').value = '';
+    hideAlert();
+  }
+
+  // ── Status polling (direct token URL flow) ─────────────────────────
+  async function checkStatus(initial) {
+    try {
+      const res  = await fetch(`${API_BASE}/connect/session/${sessionToken}`);
+      if (!res.ok) { if (initial) showPanel('invalid'); return; }
+      const data = await res.json();
+      if (data.status === 'completed') { clearInterval(pollTimer); showPanel('success'); return; }
+      if (data.status === 'expired')   { clearInterval(pollTimer); showPanel('expired'); return; }
+      if (data.status === 'revoked')   { clearInterval(pollTimer); showPanel('revoked'); return; }
+      if (initial) { showPanel('form'); pollTimer = setInterval(() => checkStatus(false), 2500); }
+    } catch { if (initial) showPanel('invalid'); }
+  }
+
+  // ── Submit ─────────────────────────────────────────────────────────
+  async function handleSubmit() {
+    hideAlert();
+    if (!selectedExchange) { showAlert('Selecione uma exchange antes de continuar.'); return; }
+    const apiKey     = document.getElementById('apiKey').value.trim();
+    const apiSecret  = document.getElementById('apiSecret').value.trim();
+    const passphrase = document.getElementById('passphrase').value.trim();
+    const uid        = document.getElementById('uid').value.trim();
+    if (!apiKey || !apiSecret) { showAlert('Preencha a API Key e o API Secret.'); return; }
+    if (selectedExchange.passphrase && !passphrase) { showAlert('Esta exchange requer uma Passphrase.'); return; }
+    if (selectedExchange.uid && !uid) { showAlert('Esta exchange requer um ' + (selectedExchange.uidLabel || 'Memo (UID)') + '.'); return; }
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Conectando…';
+    try {
+      const body = { exchange_type: selectedExchange.id, api_key: apiKey, api_secret: apiSecret };
+      if (passphrase) body.passphrase = passphrase;
+      if (uid)        body.passphrase = uid;
+      const res  = await fetch(`${API_BASE}/connect/session/${sessionToken}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        showAlert(data.error || 'Erro ao conectar exchange. Tente novamente.');
+        btn.disabled = false; btn.innerHTML = 'Conectar exchange'; return;
+      }
+      clearInterval(pollTimer);
+      loadConnectedExchanges();
+      showPanel('success');
+    } catch {
+      showAlert('Erro de conexão. Verifique sua internet e tente novamente.');
+      btn.disabled = false; btn.innerHTML = 'Conectar exchange';
+    }
+  }
+
+  // ── Connect another ────────────────────────────────────────────────
+  function connectAnother() {
+    document.getElementById('apiKey').value = '';
+    document.getElementById('apiSecret').value = '';
+    document.getElementById('passphrase').value = '';
+    document.getElementById('uid').value = '';
+    selectedExchange = null;
+    document.querySelectorAll('.exc-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('passphraseField').style.display = 'none';
+    document.getElementById('uidField').style.display = 'none';
+    hideAlert();
+    showPanel('form');
+    if (sessionToken) { clearInterval(pollTimer); pollTimer = setInterval(() => checkStatus(false), 2500); }
+  }
+
+  function scrollToForm() {
+    document.getElementById('mainCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (currentPanel !== 'form') showPanel('form');
+  }
+
+  // ── UI helpers ─────────────────────────────────────────────────────
+  const PANEL_IDS = {
+    qrLogin:  'panelQrLogin',
+    success:  'panelSuccess',
+    expired:  'panelExpired',
+    invalid:  'panelInvalid',
+    revoked:  'panelRevoked',
+    form:     'panelForm',
+  };
+
+  function showPanel(name) {
+    if (currentPanel === name) return;
+    currentPanel = name;
+    Object.entries(PANEL_IDS).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('active', key === name);
+    });
+  }
+
+  function showAlert(msg) {
+    const el = document.getElementById('alertError');
+    document.getElementById('alertErrorText').textContent = msg;
+    el.className = 'alert error visible';
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function hideAlert() {
+    document.getElementById('alertError').className = 'alert error';
+  }
+
+  showPanel('form');
+</script>
+</body>
+</html>

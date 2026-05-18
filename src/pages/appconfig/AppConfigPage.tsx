@@ -1,0 +1,1 @@
+__COPY__/home/adm-system/Documents/projects/mex/mex-admin/src/pages/appconfig/AppConfigPage.tsx
