@@ -13,8 +13,8 @@ if [ ! -f "$NGINX_CONF_LOCAL" ]; then
 fi
 
 # Caminho correto para o ec2-info.txt e chave PEM
-EC2_INFO_FILE="$PROJECT_ROOT/ec2-info.txt"
-KEY_FILE="$PROJECT_ROOT/mex-admin-service-key.pem"
+EC2_INFO_FILE="$PROJECT_ROOT/../../deploy/ec2-info.txt"
+KEY_FILE="$(cd -- "$PROJECT_ROOT/../../secrets" && pwd)/mex-admin-service-key.pem"
 if [ ! -f "$EC2_INFO_FILE" ]; then
   echo -e "${RED}❌ Arquivo ec2-info.txt não encontrado em $EC2_INFO_FILE${NC}"
   exit 1
