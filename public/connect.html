@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- connect · v1.1.17 -->
+<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -6,12 +6,326 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mex Connect</title>
   <link rel="icon" type="image/png" href="./icons/icon.png" />
-  <!-- Favicon padrão local -->
   <link rel="icon" type="image/png" href="./icons/icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
+    /* ─────────────────────────────────────────────
+   BODY
+───────────────────────────────────────────── */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      text-decoration: none;
+    }
+
+    .logo-text-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      line-height: 1;
+    }
+
+    .logo-title {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+
+      color: #2b2b3a;
+
+      font-family: 'Inter', sans-serif;
+    }
+
+    .logo-subtitle {
+      margin-top: 5px;
+
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.6px;
+
+      color: #9ca3af;
+
+      text-transform: uppercase;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      padding: 32px 16px 52px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ─────────────────────────────────────────────
+   HEADER
+───────────────────────────────────────────── */
+    .page-header {
+      position: relative;
+      z-index: 5;
+
+      width: 100%;
+      max-width: 940px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      margin-bottom: 28px;
+      min-height: 60px;
+    }
+
+    /* sessão no canto direito */
+    .header-session {
+      position: absolute;
+      right: 0;
+
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-session.visible {
+      display: flex;
+    }
+
+    /* ─────────────────────────────────────────────
+   LOGO
+───────────────────────────────────────────── */
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 58px;
+      height: 58px;
+
+      border-radius: 18px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background: linear-gradient(135deg,
+          rgba(109, 93, 245, .12),
+          rgba(109, 93, 245, .04));
+
+      border: 1px solid rgba(109, 93, 245, .14);
+
+      box-shadow:
+        0 8px 30px rgba(109, 93, 245, .10),
+        0 2px 8px rgba(0, 0, 0, .04);
+    }
+
+    .logo-image {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+    }
+
+    /* ─────────────────────────────────────────────
+   LAYOUT
+───────────────────────────────────────────── */
+    .app-layout {
+      position: relative;
+      z-index: 1;
+
+      width: 100%;
+      max-width: 460px;
+
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+
+      transition: max-width .3s ease;
+    }
+
+    .app-layout.with-sidebar {
+      max-width: 980px;
+
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+
+      align-items: flex-start;
+      gap: 18px;
+    }
+
+    @media (max-width: 720px) {
+      .app-layout.with-sidebar {
+        display: flex;
+        flex-direction: column;
+        max-width: 460px;
+      }
+    }
+
+    /* ─────────────────────────────────────────────
+   SIDEBAR
+───────────────────────────────────────────── */
+    .sidebar {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      gap: 12px;
+
+      position: sticky;
+      top: 24px;
+    }
+
+    .sidebar.visible {
+      display: flex;
+    }
+
+    /* ─────────────────────────────────────────────
+   CARD
+───────────────────────────────────────────── */
+    .card {
+      width: 100%;
+
+      background: var(--surface);
+
+      border: 1px solid var(--border-mid);
+
+      border-radius: 24px;
+
+      overflow: hidden;
+
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, .8) inset,
+        0 10px 40px rgba(0, 0, 0, .07),
+        0 2px 10px rgba(0, 0, 0, .04);
+    }
+
+    .card-body {
+      padding: 32px;
+    }
+
+    @media (max-width: 480px) {
+      .card-body {
+        padding: 22px 18px 28px;
+      }
+    }
+
+    /* ─────────────────────────────────────────────
+   QR PANEL
+───────────────────────────────────────────── */
+    .qr-panel {
+      text-align: center;
+    }
+
+    .qr-wrap {
+      background: #fff;
+
+      border-radius: 22px;
+
+      padding: 14px;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      margin-bottom: 24px;
+
+      border: 1px solid var(--border);
+
+      box-shadow:
+        0 8px 24px rgba(0, 0, 0, .06);
+    }
+
+    .qr-wrap img {
+      width: 210px;
+      height: 210px;
+
+      display: block;
+      border-radius: 10px;
+    }
+
+    /* ─────────────────────────────────────────────
+   FORM
+───────────────────────────────────────────── */
+    .panel-title {
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -.5px;
+    }
+
+    .panel-sub {
+      font-size: 14px;
+      line-height: 1.7;
+      margin-top: 7px;
+    }
+
+    /* ─────────────────────────────────────────────
+   BUTTONS
+───────────────────────────────────────────── */
+    .btn-primary {
+      height: 48px;
+
+      border-radius: 14px;
+
+      font-size: 14px;
+      font-weight: 700;
+
+      margin-top: 20px;
+    }
+
+    .btn-ghost {
+      height: 42px;
+      border-radius: 12px;
+    }
+
+    /* ─────────────────────────────────────────────
+   MOBILE
+───────────────────────────────────────────── */
+    @media (max-width: 480px) {
+
+      .page-header {
+        margin-bottom: 22px;
+      }
+
+      .logo-mark {
+        width: 52px;
+        height: 52px;
+      }
+
+      .logo-image {
+        width: 30px;
+        height: 30px;
+      }
+
+      .header-session {
+        position: relative;
+        width: 100%;
+        justify-content: center;
+        margin-top: 12px;
+      }
+
+      .page-header {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .qr-wrap img {
+        width: 180px;
+        height: 180px;
+      }
+    }
+
     :root {
       --bg: #f1f3f8;
       --surface: #ffffff;
@@ -974,14 +1288,30 @@
 </head>
 
 <body>
-
-  <!-- Header: logo + session info -->
+  <!-- HEADER -->
   <header class="page-header">
+
+    <!-- Logo centralizada -->
+    <a href="#" class="logo">
+      <div class="logo-mark">
+        <img src="./icons/icon.png" alt="Mex Logo" class="logo-image" />
+      </div>
+
+      <div class="logo-text-wrap">
+        <span class="logo-title">Mex Connect</span>
+        <span class="logo-subtitle">
+          Secure Exchange Connection
+        </span>
+      </div>
+    </a>
+
+    <!-- Sessão -->
     <div class="header-session" id="headerSession">
       <div class="header-user">
         <strong id="headerUserName"></strong>
         <span id="headerUserEmail"></span>
       </div>
+
       <button class="btn-end-session" onclick="handleLogout()">
         <svg viewBox="0 0 24 24">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -991,532 +1321,533 @@
         Encerrar sessão
       </button>
     </div>
+
   </header>
+  <div style="display:flex; justify-content:center; margin-bottom:18px;">
 
-  <!-- Two-column layout -->
-  <div class="app-layout" id="appLayout">
+    <!-- Two-column layout -->
+    <div class="app-layout" id="appLayout">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sb-card">
-        <p class="sb-section-label">Exchanges conectadas</p>
-        <div class="sb-list" id="sbList">
-          <div class="sb-loading" id="sbLoading">
-            <div class="spinner-sm"></div><span>Carregando…</span>
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sb-card">
+          <p class="sb-section-label">Exchanges conectadas</p>
+          <div class="sb-list" id="sbList">
+            <div class="sb-loading" id="sbLoading">
+              <div class="spinner-sm"></div><span>Carregando…</span>
+            </div>
           </div>
+          <button class="sb-add-btn" onclick="scrollToForm()">
+            <svg viewBox="0 0 24 24">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Conectar nova exchange
+          </button>
         </div>
-        <button class="sb-add-btn" onclick="scrollToForm()">
-          <svg viewBox="0 0 24 24">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Conectar nova exchange
-        </button>
-      </div>
-    </aside>
+      </aside>
 
-    <!-- MAIN COLUMN -->
-    <div class="main-col" id="mainCol">
-      <div class="card" id="mainCard">
-        <div class="card-top-bar"></div>
-        <div class="card-body">
-          <img  src="./icons/icon.png" alt="Logo Mex" style="width: 28px; height: 28px; display: block;" />          
-          <!-- PANEL: QR LOGIN -->
-          <div class="panel qr-panel" id="panelQrLogin">
-            <div class="panel-header">
-              <p class="eyebrow">Autenticação web</p>
-              <p class="panel-title">Escaneie com o app</p>
-              <p class="panel-sub">Abra o MEX no celular e escaneie para autenticar.</p>
-            </div>
-            <div class="qr-wrap"><img id="qrLoginImg" src="" alt="QR Code de autenticação" /></div>
-            <div class="qr-steps">
-              <div class="qr-step">
-                <div class="qr-step-num">1</div><span>Abra o app <strong style="color:var(--text)">MEX</strong> no
-                  celular</span>
+      <!-- MAIN COLUMN -->
+      <div class="main-col" id="mainCol">
+        <div class="card" id="mainCard">
+          <div class="card-top-bar"></div>
+          <div class="card-body">
+            <!-- PANEL: QR LOGIN -->
+            <div class="panel qr-panel" id="panelQrLogin">
+              <div class="panel-header">
+                <p class="eyebrow">Autenticação web</p>
+                <p class="panel-title">Escaneie com o app</p>
+                <p class="panel-sub">Abra o MEX no celular e escaneie para autenticar.</p>
               </div>
-              <div class="qr-step">
-                <div class="qr-step-num">2</div><span>Toque em <strong style="color:var(--text)">Exchanges →
-                    Web</strong></span>
+              <div class="qr-wrap"><img id="qrLoginImg" src="" alt="QR Code de autenticação" /></div>
+              <div class="qr-steps">
+                <div class="qr-step">
+                  <div class="qr-step-num">1</div><span>Abra o app <strong style="color:var(--text)">MEX</strong> no
+                    celular</span>
+                </div>
+                <div class="qr-step">
+                  <div class="qr-step-num">2</div><span>Toque em <strong style="color:var(--text)">Exchanges →
+                      Web</strong></span>
+                </div>
+                <div class="qr-step">
+                  <div class="qr-step-num">3</div><span>Aponte a câmera para o QR Code acima</span>
+                </div>
               </div>
-              <div class="qr-step">
-                <div class="qr-step-num">3</div><span>Aponte a câmera para o QR Code acima</span>
+              <div class="qr-status" id="qrLoginStatus">
+                <div class="status-dot"></div>
+                <span id="qrLoginStatusText">Aguardando leitura…</span>
               </div>
-            </div>
-            <div class="qr-status" id="qrLoginStatus">
-              <div class="status-dot"></div>
-              <span id="qrLoginStatusText">Aguardando leitura…</span>
-            </div>
-            <button class="btn-ghost" onclick="startQrLoginFlow()">
-              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 4v6h6M23 20v-6h-6" />
-                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15" />
-              </svg>
-              Gerar novo QR
-            </button>
-          </div>
-
-          <!-- PANEL: SUCESSO exchange conectada -->
-          <div class="panel state-panel" id="panelSuccess">
-            <div class="state-icon-wrap success">
-              <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="1.8" stroke-linecap="round"
-                stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            </div>
-            <p class="state-title">Exchange conectada!</p>
-            <p class="state-sub">Credenciais salvas com segurança. Conecte mais uma ou feche esta aba.</p>
-            <div class="state-actions">
-              <button class="btn-ghost" onclick="connectAnother()">
-                <svg viewBox="0 0 24 24">
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-                Conectar outra exchange
-              </button>
-              <button class="btn-ghost" onclick="window.close()">
-                <svg viewBox="0 0 24 24">
-                  <path d="M18 6 6 18M6 6l12 12" />
-                </svg>
-                Fechar aba
-              </button>
-            </div>
-          </div>
-
-          <!-- PANEL: EXPIRADO -->
-          <div class="panel state-panel" id="panelExpired">
-            <div class="state-icon-wrap warn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="1.8" stroke-linecap="round"
-                stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
-            </div>
-            <p class="state-title">Sessão expirada</p>
-            <p class="state-sub">Este QR Code não é mais válido. Abra o app MEX e gere um novo.</p>
-          </div>
-
-          <!-- PANEL: INVÁLIDO -->
-          <div class="panel state-panel" id="panelInvalid">
-            <div class="state-icon-wrap danger">
-              <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="1.8" stroke-linecap="round"
-                stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-            </div>
-            <p class="state-title">Link inválido</p>
-            <p class="state-sub">Este link não é válido ou expirou. Abra o app MEX e gere um novo QR code.</p>
-          </div>
-
-          <!-- PANEL: REVOGADO PELO APP -->
-          <div class="panel state-panel" id="panelRevoked">
-            <div class="state-icon-wrap warn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="1.8" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-              </svg>
-            </div>
-            <p class="state-title">Sessão encerrada</p>
-            <p class="state-sub">O app MEX encerrou esta sessão web. Escaneie um novo QR code para continuar.</p>
-            <div class="state-actions">
               <button class="btn-ghost" onclick="startQrLoginFlow()">
                 <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M1 4v6h6M23 20v-6h-6" />
                   <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15" />
                 </svg>
-                Novo QR Code
+                Gerar novo QR
               </button>
             </div>
-          </div>
 
-          <!-- PANEL: FORMULÁRIO -->
-          <div class="panel" id="panelForm">
-            <div class="panel-header">
-              <p class="eyebrow">API Keys</p>
-              <p class="panel-title">Conectar exchange</p>
-              <p class="panel-sub">Selecione a exchange e cole suas chaves de API.</p>
+            <!-- PANEL: SUCESSO exchange conectada -->
+            <div class="panel state-panel" id="panelSuccess">
+              <div class="state-icon-wrap success">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="1.8" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+              <p class="state-title">Exchange conectada!</p>
+              <p class="state-sub">Credenciais salvas com segurança. Conecte mais uma ou feche esta aba.</p>
+              <div class="state-actions">
+                <button class="btn-ghost" onclick="connectAnother()">
+                  <svg viewBox="0 0 24 24">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  Conectar outra exchange
+                </button>
+                <button class="btn-ghost" onclick="window.close()">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                  Fechar aba
+                </button>
+              </div>
             </div>
 
-            <div class="session-badge" id="tokenBadge">
-              <svg viewBox="0 0 24 24">
-                <path
-                  d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
-              </svg>
-              <span id="tokenBadgeText"></span>
+            <!-- PANEL: EXPIRADO -->
+            <div class="panel state-panel" id="panelExpired">
+              <div class="state-icon-wrap warn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="1.8" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+              </div>
+              <p class="state-title">Sessão expirada</p>
+              <p class="state-sub">Este QR Code não é mais válido. Abra o app MEX e gere um novo.</p>
             </div>
 
-            <div class="alert error" id="alertError" role="alert">
-              <svg viewBox="0 0 24 24">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-              <span id="alertErrorText"></span>
+            <!-- PANEL: INVÁLIDO -->
+            <div class="panel state-panel" id="panelInvalid">
+              <div class="state-icon-wrap danger">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="1.8" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+              </div>
+              <p class="state-title">Link inválido</p>
+              <p class="state-sub">Este link não é válido ou expirou. Abra o app MEX e gere um novo QR code.</p>
             </div>
 
-            <p class="section-label">Selecione a exchange</p>
-            <div class="exchange-grid" id="exchangeGrid"></div>
+            <!-- PANEL: REVOGADO PELO APP -->
+            <div class="panel state-panel" id="panelRevoked">
+              <div class="state-icon-wrap warn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="1.8" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+              </div>
+              <p class="state-title">Sessão encerrada</p>
+              <p class="state-sub">O app MEX encerrou esta sessão web. Escaneie um novo QR code para continuar.</p>
+              <div class="state-actions">
+                <button class="btn-ghost" onclick="startQrLoginFlow()">
+                  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 4v6h6M23 20v-6h-6" />
+                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                  </svg>
+                  Novo QR Code
+                </button>
+              </div>
+            </div>
 
-            <div class="divider"></div>
+            <!-- PANEL: FORMULÁRIO -->
+            <div class="panel" id="panelForm">
+              <div class="panel-header">
+                <p class="eyebrow">API Keys</p>
+                <p class="panel-title">Conectar exchange</p>
+                <p class="panel-sub">Selecione a exchange e cole suas chaves de API.</p>
+              </div>
 
-            <div class="field">
-              <label for="apiKey">API Key *</label>
-              <div class="input-wrap">
-                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <div class="session-badge" id="tokenBadge">
+                <svg viewBox="0 0 24 24">
                   <path
                     d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
                 </svg>
-                <textarea id="apiKey" placeholder="Cole sua API Key aqui" rows="2" spellcheck="false" autocorrect="off"
-                  autocapitalize="off"></textarea>
+                <span id="tokenBadgeText"></span>
               </div>
-            </div>
 
-            <div class="field">
-              <label for="apiSecret">API Secret *</label>
-              <div class="input-wrap">
-                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              <div class="alert error" id="alertError" role="alert">
+                <svg viewBox="0 0 24 24">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
                 </svg>
-                <textarea id="apiSecret" placeholder="Cole seu API Secret aqui" rows="2" spellcheck="false"
-                  autocorrect="off" autocapitalize="off"></textarea>
+                <span id="alertErrorText"></span>
               </div>
-            </div>
 
-            <div class="field" id="passphraseField" style="display:none">
-              <label for="passphrase">Passphrase *</label>
-              <div class="input-wrap">
-                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <p class="section-label">Selecione a exchange</p>
+              <div class="exchange-grid" id="exchangeGrid"></div>
+
+              <div class="divider"></div>
+
+              <div class="field">
+                <label for="apiKey">API Key *</label>
+                <div class="input-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                      d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                  </svg>
+                  <textarea id="apiKey" placeholder="Cole sua API Key aqui" rows="2" spellcheck="false"
+                    autocorrect="off" autocapitalize="off"></textarea>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="apiSecret">API Secret *</label>
+                <div class="input-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  <textarea id="apiSecret" placeholder="Cole seu API Secret aqui" rows="2" spellcheck="false"
+                    autocorrect="off" autocapitalize="off"></textarea>
+                </div>
+              </div>
+
+              <div class="field" id="passphraseField" style="display:none">
+                <label for="passphrase">Passphrase *</label>
+                <div class="input-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                  <input type="password" id="passphrase" placeholder="Passphrase da exchange" autocomplete="off" />
+                </div>
+                <p class="hint">Esta exchange exige uma passphrase além da API Key e Secret.</p>
+              </div>
+
+              <div class="field" id="uidField" style="display:none">
+                <label id="uidLabel" for="uid">Memo (UID) *</label>
+                <div class="input-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  <input type="text" id="uid" inputmode="numeric" placeholder="Cole seu Memo/UID aqui"
+                    autocomplete="off" />
+                </div>
+                <p class="hint" id="uidHint">Número de identificação da sua conta.</p>
+              </div>
+
+              <button class="btn-primary" id="submitBtn" onclick="handleSubmit()">
+                Conectar exchange
+              </button>
+
+              <div class="security-notice">
+                <svg viewBox="0 0 24 24">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
-                <input type="password" id="passphrase" placeholder="Passphrase da exchange" autocomplete="off" />
+                <p>Chaves criptografadas de ponta a ponta. O MEX nunca solicita permissão de saque.</p>
               </div>
-              <p class="hint">Esta exchange exige uma passphrase além da API Key e Secret.</p>
             </div>
 
-            <div class="field" id="uidField" style="display:none">
-              <label id="uidLabel" for="uid">Memo (UID) *</label>
-              <div class="input-wrap">
-                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-                <input type="text" id="uid" inputmode="numeric" placeholder="Cole seu Memo/UID aqui"
-                  autocomplete="off" />
-              </div>
-              <p class="hint" id="uidHint">Número de identificação da sua conta.</p>
-            </div>
+          </div><!-- /card-body -->
+        </div><!-- /card -->
 
-            <button class="btn-primary" id="submitBtn" onclick="handleSubmit()">
-              Conectar exchange
-            </button>
+        <p class="page-footer">
+          mex.app.br &nbsp;·&nbsp; <a href="https://mex.app.br/privacy-policy" target="_blank">Privacidade</a>
+          &nbsp;·&nbsp; <a href="https://mex.app.br/terms" target="_blank">Termos</a>
+        </p>
+      </div><!-- /main-col -->
 
-            <div class="security-notice">
-              <svg viewBox="0 0 24 24">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-              <p>Chaves criptografadas de ponta a ponta. O MEX nunca solicita permissão de saque.</p>
-            </div>
-          </div>
+    </div><!-- /app-layout -->
 
-        </div><!-- /card-body -->
-      </div><!-- /card -->
+    <script>
+      const API_BASE = 'https://api.mex.app.br/api/v1';
 
-      <p class="page-footer">
-        mex.app.br &nbsp;·&nbsp; <a href="https://mex.app.br/privacy-policy" target="_blank">Privacidade</a>
-        &nbsp;·&nbsp; <a href="https://mex.app.br/terms" target="_blank">Termos</a>
-      </p>
-    </div><!-- /main-col -->
+      let sessionToken = null;
+      let selectedExchange = null;
+      let pollTimer = null;
+      let qrPollTimer = null;
+      let currentPanel = null;
+      let connecteds = [];
 
-  </div><!-- /app-layout -->
+      // ─────────────────────────────────────────────────────────────
+      // INIT
+      // ─────────────────────────────────────────────────────────────
+      document.addEventListener('DOMContentLoaded', async () => {
+        const params = new URLSearchParams(window.location.search);
 
-<script>
-  const API_BASE = 'https://api.mex.app.br/api/v1';
+        sessionToken = params.get('token');
 
-  let sessionToken = null;
-  let selectedExchange = null;
-  let pollTimer = null;
-  let qrPollTimer = null;
-  let currentPanel = null;
-  let connecteds = [];
-
-  // ─────────────────────────────────────────────────────────────
-  // INIT
-  // ─────────────────────────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', async () => {
-    const params = new URLSearchParams(window.location.search);
-
-    sessionToken = params.get('token');
-
-    // Sem token → QR Login
-    if (!sessionToken) {
-      await startQrLoginFlow();
-      return;
-    }
-
-    // Com token → sessão ativa
-    activateSession(sessionToken, null, null);
-
-    await loadConnectedExchanges();
-
-    await buildExchangeGrid();
-
-    checkStatus(true);
-  });
-
-  // ─────────────────────────────────────────────────────────────
-  // ENCERRA SESSÃO AO FECHAR ABA
-  // ─────────────────────────────────────────────────────────────
-  window.addEventListener('pagehide', () => {
-    if (!sessionToken) return;
-
-    try {
-      navigator.sendBeacon(
-        `${API_BASE}/connect/session/${sessionToken}/end-beacon`
-      );
-    } catch (_) {}
-
-    try {
-      fetch(
-        `${API_BASE}/connect/session/${sessionToken}/end`,
-        {
-          method: 'DELETE',
-          keepalive: true
+        // Sem token → QR Login
+        if (!sessionToken) {
+          await startQrLoginFlow();
+          return;
         }
-      );
-    } catch (_) {}
-  });
 
-  // ─────────────────────────────────────────────────────────────
-  // ACTIVATE SESSION
-  // ─────────────────────────────────────────────────────────────
-  function activateSession(token, userName, userEmail) {
-    sessionToken = token;
+        // Com token → sessão ativa
+        activateSession(sessionToken, null, null);
 
-    const hs = document.getElementById('headerSession');
+        await loadConnectedExchanges();
 
-    hs?.classList.add('visible');
+        await buildExchangeGrid();
 
-    if (userName) {
-      document.getElementById('headerUserName').textContent =
-        userName;
+        checkStatus(true);
+      });
 
-      document.getElementById('headerUserEmail').textContent =
-        userEmail || '';
-    }
+      // ─────────────────────────────────────────────────────────────
+      // ENCERRA SESSÃO AO FECHAR ABA
+      // ─────────────────────────────────────────────────────────────
+      window.addEventListener('pagehide', () => {
+        if (!sessionToken) return;
 
-    document
-      .getElementById('appLayout')
-      ?.classList.add('with-sidebar');
-
-    document
-      .getElementById('sidebar')
-      ?.classList.add('visible');
-
-    const badge = document.getElementById('tokenBadge');
-
-    badge?.classList.add('visible');
-
-    const badgeText = document.getElementById(
-      'tokenBadgeText'
-    );
-
-    if (badgeText) {
-      badgeText.textContent =
-        'Sessão: ' + token.slice(0, 8) + '…';
-    }
-  }
-
-  // ─────────────────────────────────────────────────────────────
-  // QR LOGIN FLOW
-  // ─────────────────────────────────────────────────────────────
-  async function startQrLoginFlow() {
-    showPanel('qrLogin');
-
-    setQrStatus('loading', 'Gerando QR Code…');
-
-    const qrImgEl = document.getElementById('qrLoginImg');
-
-    if (qrImgEl) {
-      qrImgEl.src = '';
-    }
-
-    clearInterval(qrPollTimer);
-
-    qrPollTimer = null;
-
-    try {
-      const res = await fetch(
-        `${API_BASE}/auth/web-session`,
-        {
-          method: 'POST'
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(
-          data.error || 'Erro ao criar sessão'
-        );
-      }
-
-      const qrToken = data.token;
-
-      const qrUrl = data.qr_url;
-
-      const qrImg =
-        'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=0&data=' +
-        encodeURIComponent(qrUrl);
-
-      if (qrImgEl) {
-        qrImgEl.src = qrImg;
-      }
-
-      setQrStatus(
-        'loading',
-        'Aguardando leitura pelo app…'
-      );
-
-      qrPollTimer = setInterval(async () => {
         try {
-          const r = await fetch(
-            `${API_BASE}/auth/web-session/${qrToken}`
+          navigator.sendBeacon(
+            `${API_BASE}/connect/session/${sessionToken}/end-beacon`
+          );
+        } catch (_) { }
+
+        try {
+          fetch(
+            `${API_BASE}/connect/session/${sessionToken}/end`,
+            {
+              method: 'DELETE',
+              keepalive: true
+            }
+          );
+        } catch (_) { }
+      });
+
+      // ─────────────────────────────────────────────────────────────
+      // ACTIVATE SESSION
+      // ─────────────────────────────────────────────────────────────
+      function activateSession(token, userName, userEmail) {
+        sessionToken = token;
+
+        const hs = document.getElementById('headerSession');
+
+        hs?.classList.add('visible');
+
+        if (userName) {
+          document.getElementById('headerUserName').textContent =
+            userName;
+
+          document.getElementById('headerUserEmail').textContent =
+            userEmail || '';
+        }
+
+        document
+          .getElementById('appLayout')
+          ?.classList.add('with-sidebar');
+
+        document
+          .getElementById('sidebar')
+          ?.classList.add('visible');
+
+        const badge = document.getElementById('tokenBadge');
+
+        badge?.classList.add('visible');
+
+        const badgeText = document.getElementById(
+          'tokenBadgeText'
+        );
+
+        if (badgeText) {
+          badgeText.textContent =
+            'Sessão: ' + token.slice(0, 8) + '…';
+        }
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // QR LOGIN FLOW
+      // ─────────────────────────────────────────────────────────────
+      async function startQrLoginFlow() {
+        showPanel('qrLogin');
+
+        setQrStatus('loading', 'Gerando QR Code…');
+
+        const qrImgEl = document.getElementById('qrLoginImg');
+
+        if (qrImgEl) {
+          qrImgEl.src = '';
+        }
+
+        clearInterval(qrPollTimer);
+
+        qrPollTimer = null;
+
+        try {
+          const res = await fetch(
+            `${API_BASE}/auth/web-session`,
+            {
+              method: 'POST'
+            }
           );
 
-          if (!r.ok) {
-            clearInterval(qrPollTimer);
-            showPanel('invalid');
-            return;
-          }
+          const data = await res.json();
 
-          const s = await r.json();
-
-          if (
-            s.status === 'approved' &&
-            s.connect_token
-          ) {
-            clearInterval(qrPollTimer);
-
-            sessionToken = s.connect_token;
-
-            activateSession(
-              s.connect_token,
-              s.user_name || null,
-              s.user_email || null
-            );
-
-            await loadConnectedExchanges();
-
-            await buildExchangeGrid();
-
-            showPanel('form');
-          }
-
-          if (s.status === 'expired') {
-            clearInterval(qrPollTimer);
-
-            setQrStatus(
-              'idle',
-              'QR Code expirado. Gere outro QR.'
+          if (!res.ok || !data.success) {
+            throw new Error(
+              data.error || 'Erro ao criar sessão'
             );
           }
-        } catch (err) {
-          console.error(err);
+
+          const qrToken = data.token;
+
+          const qrUrl = data.qr_url;
+
+          const qrImg =
+            'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=0&data=' +
+            encodeURIComponent(qrUrl);
+
+          if (qrImgEl) {
+            qrImgEl.src = qrImg;
+          }
+
+          setQrStatus(
+            'loading',
+            'Aguardando leitura pelo app…'
+          );
+
+          qrPollTimer = setInterval(async () => {
+            try {
+              const r = await fetch(
+                `${API_BASE}/auth/web-session/${qrToken}`
+              );
+
+              if (!r.ok) {
+                clearInterval(qrPollTimer);
+                showPanel('invalid');
+                return;
+              }
+
+              const s = await r.json();
+
+              if (
+                s.status === 'approved' &&
+                s.connect_token
+              ) {
+                clearInterval(qrPollTimer);
+
+                sessionToken = s.connect_token;
+
+                activateSession(
+                  s.connect_token,
+                  s.user_name || null,
+                  s.user_email || null
+                );
+
+                await loadConnectedExchanges();
+
+                await buildExchangeGrid();
+
+                showPanel('form');
+              }
+
+              if (s.status === 'expired') {
+                clearInterval(qrPollTimer);
+
+                setQrStatus(
+                  'idle',
+                  'QR Code expirado. Gere outro QR.'
+                );
+              }
+            } catch (err) {
+              console.error(err);
+            }
+          }, 2500);
+
+        } catch (e) {
+          console.error(e);
+
+          setQrStatus(
+            'idle',
+            e.message || 'Erro ao gerar QR'
+          );
         }
-      }, 2500);
+      }
 
-    } catch (e) {
-      console.error(e);
+      // ─────────────────────────────────────────────────────────────
+      // QR STATUS
+      // ─────────────────────────────────────────────────────────────
+      function setQrStatus(type, text) {
+        const wrap = document.getElementById(
+          'qrLoginStatus'
+        );
 
-      setQrStatus(
-        'idle',
-        e.message || 'Erro ao gerar QR'
-      );
-    }
-  }
+        const span = document.getElementById(
+          'qrLoginStatusText'
+        );
 
-  // ─────────────────────────────────────────────────────────────
-  // QR STATUS
-  // ─────────────────────────────────────────────────────────────
-  function setQrStatus(type, text) {
-    const wrap = document.getElementById(
-      'qrLoginStatus'
-    );
+        if (span) {
+          span.textContent = text;
+        }
 
-    const span = document.getElementById(
-      'qrLoginStatusText'
-    );
+        const dot = wrap?.querySelector('.status-dot');
 
-    if (span) {
-      span.textContent = text;
-    }
+        if (dot) {
+          dot.style.display =
+            type === 'loading' ? '' : 'none';
+        }
+      }
 
-    const dot = wrap?.querySelector('.status-dot');
+      // ─────────────────────────────────────────────────────────────
+      // LOAD CONNECTED EXCHANGES
+      // ─────────────────────────────────────────────────────────────
+      async function loadConnectedExchanges() {
+        const list = document.getElementById('sbList');
 
-    if (dot) {
-      dot.style.display =
-        type === 'loading' ? '' : 'none';
-    }
-  }
+        if (!list) return;
 
-  // ─────────────────────────────────────────────────────────────
-  // LOAD CONNECTED EXCHANGES
-  // ─────────────────────────────────────────────────────────────
-  async function loadConnectedExchanges() {
-    const list = document.getElementById('sbList');
-
-    if (!list) return;
-
-    list.innerHTML = `
+        list.innerHTML = `
       <div class="sb-loading">
         <div class="spinner-sm"></div>
         <span>Carregando…</span>
       </div>
     `;
 
-    try {
-      const res = await fetch(
-        `${API_BASE}/connect/session/${sessionToken}/data`
-      );
+        try {
+          const res = await fetch(
+            `${API_BASE}/connect/session/${sessionToken}/data`
+          );
 
-      if (!res.ok) {
-        renderSidebarError();
-        return;
-      }
+          if (!res.ok) {
+            renderSidebarError();
+            return;
+          }
 
-      const data = await res.json();
+          const data = await res.json();
 
-      const exchanges =
-        data.connected_exchanges || [];
+          const exchanges =
+            data.connected_exchanges || [];
 
-      connecteds = exchanges;
+          connecteds = exchanges;
 
-      if (!exchanges.length) {
-        list.innerHTML = `
+          if (!exchanges.length) {
+            list.innerHTML = `
           <p class="sb-empty">
             Nenhuma exchange conectada ainda.
           </p>
         `;
-        return;
-      }
+            return;
+          }
 
-      list.innerHTML = '';
+          list.innerHTML = '';
 
-      exchanges.forEach(exc => {
-        const item = document.createElement('div');
+          exchanges.forEach(exc => {
+            const item = document.createElement('div');
 
-        item.className = 'sb-item';
+            item.className = 'sb-item';
 
-        const icon =
-          './assets/logos/' +
-          exc.exchange_type +
-          '.png';
+            const icon =
+              './assets/logos/' +
+              exc.exchange_type +
+              '.png';
 
-        item.innerHTML = `
+            item.innerHTML = `
           <img
             class="sb-item-icon"
             src="${icon}"
@@ -1535,124 +1866,122 @@
             </div>
           </div>
 
-          <div class="sb-item-dot ${
-            exc.is_active ? '' : 'inactive'
-          }"></div>
+          <div class="sb-item-dot ${exc.is_active ? '' : 'inactive'
+              }"></div>
         `;
 
-        list.appendChild(item);
-      });
+            list.appendChild(item);
+          });
 
-    } catch (err) {
-      console.error(err);
+        } catch (err) {
+          console.error(err);
 
-      renderSidebarError();
-    }
-  }
+          renderSidebarError();
+        }
+      }
 
-  // ─────────────────────────────────────────────────────────────
-  // BUILD GRID
-  // ─────────────────────────────────────────────────────────────
-async function buildExchangeGrid() {
-  const grid = document.getElementById('exchangeGrid');
+      // ─────────────────────────────────────────────────────────────
+      // BUILD GRID
+      // ─────────────────────────────────────────────────────────────
+      async function buildExchangeGrid() {
+        const grid = document.getElementById('exchangeGrid');
 
-  if (!grid) return;
+        if (!grid) return;
 
-  grid.innerHTML = '';
+        grid.innerHTML = '';
 
-  try {
-    const res = await fetch(
-      `${API_BASE}/connect/session/${sessionToken}/data`
-    );
+        try {
+          const res = await fetch(
+            `${API_BASE}/connect/session/${sessionToken}/data`
+          );
 
-    if (!res.ok) {
-      throw new Error('Erro ao carregar exchanges');
-    }
+          if (!res.ok) {
+            throw new Error('Erro ao carregar exchanges');
+          }
 
-    const data = await res.json();
+          const data = await res.json();
 
-    // Lista completa
-    const availableExchanges =
-      data.available_exchanges || [];
+          // Lista completa
+          const availableExchanges =
+            data.available_exchanges || [];
 
-    // Lista conectadas
-    const connectedExchanges =
-      data.connected_exchanges || [];
+          // Lista conectadas
+          const connectedExchanges =
+            data.connected_exchanges || [];
 
-    // Normaliza IDs conectados
-    const connectedIds = new Set(
-      connectedExchanges.map(exc =>
-        String(
-          exc.exchange_type ||
-          exc.ccxt_id ||
-          exc.name
-        )
-          .trim()
-          .toLowerCase()
-      )
-    );
+          // Normaliza IDs conectados
+          const connectedIds = new Set(
+            connectedExchanges.map(exc =>
+              String(
+                exc.exchange_type ||
+                exc.ccxt_id ||
+                exc.name
+              )
+                .trim()
+                .toLowerCase()
+            )
+          );
 
-    // Filtra apenas NÃO conectadas
-    const exchangesToShow =
-      availableExchanges.filter(exc => {
+          // Filtra apenas NÃO conectadas
+          const exchangesToShow =
+            availableExchanges.filter(exc => {
 
-        const exchangeId = String(
-          exc.ccxt_id ||
-          exc.exchange_type ||
-          exc.name
-        )
-          .trim()
-          .toLowerCase();
+              const exchangeId = String(
+                exc.ccxt_id ||
+                exc.exchange_type ||
+                exc.name
+              )
+                .trim()
+                .toLowerCase();
 
-        return !connectedIds.has(exchangeId);
-      });
+              return !connectedIds.has(exchangeId);
+            });
 
-    // Todas conectadas
-    if (!exchangesToShow.length) {
-      grid.innerHTML = `
+          // Todas conectadas
+          if (!exchangesToShow.length) {
+            grid.innerHTML = `
         <div class="grid-empty">
           Todas as exchanges já estão conectadas.
         </div>
       `;
-      return;
-    }
+            return;
+          }
 
-    // Render
-    exchangesToShow.forEach(exc => {
+          // Render
+          exchangesToShow.forEach(exc => {
 
-      const btn =
-        document.createElement('button');
+            const btn =
+              document.createElement('button');
 
-      btn.className = 'exc-btn';
+            btn.className = 'exc-btn';
 
-      btn.type = 'button';
+            btn.type = 'button';
 
-      btn.dataset.id =
-        exc.ccxt_id ||
-        exc.exchange_type;
+            btn.dataset.id =
+              exc.ccxt_id ||
+              exc.exchange_type;
 
-      btn.onclick = () =>
-        selectExchange({
-          ...exc,
-          id:
-            exc.ccxt_id ||
-            exc.exchange_type,
-          name:
-            exc.name ||
-            exc.display_name,
-        });
+            btn.onclick = () =>
+              selectExchange({
+                ...exc,
+                id:
+                  exc.ccxt_id ||
+                  exc.exchange_type,
+                name:
+                  exc.name ||
+                  exc.display_name,
+              });
 
-      btn.innerHTML = `
-        ${
-          exc.passphrase || exc.uid
-            ? `
+            btn.innerHTML = `
+        ${exc.passphrase || exc.uid
+                ? `
               <div
                 class="exc-badge"
                 title="Requer campo extra"
               ></div>
             `
-            : ''
-        }
+                : ''
+              }
 
         <img
           src="./assets/logos/${exc.ccxt_id || exc.exchange_type}.png"
@@ -1662,407 +1991,406 @@ async function buildExchangeGrid() {
         />
 
         <div class="exc-name">
-          ${
-            exc.nome ||
-            exc.exchange_type
-          }
+          ${exc.nome ||
+              exc.exchange_type
+              }
         </div>
       `;
 
-      grid.appendChild(btn);
-    });
+            grid.appendChild(btn);
+          });
 
-  } catch (err) {
-    console.error(err);
+        } catch (err) {
+          console.error(err);
 
-    grid.innerHTML = `
+          grid.innerHTML = `
       <div class="grid-empty">
         Erro ao carregar exchanges.
       </div>
     `;
-  }
-}
-// ─────────────────────────────────────────────────────────────
-  // SELECT EXCHANGE
-  // ─────────────────────────────────────────────────────────────
-  function selectExchange(exc) {
-    selectedExchange = exc;
-
-    document
-      .querySelectorAll('.exc-btn')
-      .forEach(b =>
-        b.classList.remove('selected')
-      );
-
-    document
-      .querySelector(
-        `.exc-btn[data-id="${exc.id}"]`
-      )
-      ?.classList.add('selected');
-
-    const passphraseField =
-      document.getElementById(
-        'passphraseField'
-      );
-
-    const uidField =
-      document.getElementById('uidField');
-
-    if (passphraseField) {
-      passphraseField.style.display =
-        exc.passphrase ? 'block' : 'none';
-    }
-
-    if (uidField) {
-      uidField.style.display =
-        exc.uid ? 'block' : 'none';
-    }
-
-    if (exc.uid) {
-      document.getElementById(
-        'uidLabel'
-      ).textContent =
-        (exc.uidLabel || 'UID') + ' *';
-
-      document.getElementById(
-        'uid'
-      ).placeholder =
-        'Cole seu ' +
-        (exc.uidLabel || 'UID');
-
-      document.getElementById(
-        'uidHint'
-      ).textContent =
-        exc.uidHint ||
-        'Número de identificação da conta.';
-    }
-
-    hideAlert();
-  }
-
-  // ─────────────────────────────────────────────────────────────
-  // STATUS POLLING
-  // ─────────────────────────────────────────────────────────────
-  async function checkStatus(initial) {
-    try {
-      const res = await fetch(
-        `${API_BASE}/connect/session/${sessionToken}`
-      );
-
-      if (!res.ok) {
-        if (initial) showPanel('invalid');
-        return;
-      }
-
-      const data = await res.json();
-
-      if (data.status === 'completed') {
-        clearInterval(pollTimer);
-        showPanel('success');
-        return;
-      }
-
-      if (data.status === 'expired') {
-        clearInterval(pollTimer);
-        showPanel('expired');
-        return;
-      }
-
-      if (data.status === 'revoked') {
-        clearInterval(pollTimer);
-        showPanel('revoked');
-        return;
-      }
-
-      if (initial) {
-        showPanel('form');
-
-        pollTimer = setInterval(
-          () => checkStatus(false),
-          2500
-        );
-      }
-
-    } catch {
-      if (initial) {
-        showPanel('invalid');
-      }
-    }
-  }
-
-  // ─────────────────────────────────────────────────────────────
-  // SUBMIT
-  // ─────────────────────────────────────────────────────────────
-  async function handleSubmit() {
-    hideAlert();
-
-    if (!selectedExchange) {
-      showAlert(
-        'Selecione uma exchange.'
-      );
-      return;
-    }
-
-    const apiKey =
-      document
-        .getElementById('apiKey')
-        .value.trim();
-
-    const apiSecret =
-      document
-        .getElementById('apiSecret')
-        .value.trim();
-
-    const passphrase =
-      document
-        .getElementById('passphrase')
-        .value.trim();
-
-    const uid =
-      document
-        .getElementById('uid')
-        .value.trim();
-
-    if (!apiKey || !apiSecret) {
-      showAlert(
-        'Preencha API Key e API Secret.'
-      );
-      return;
-    }
-
-    if (
-      selectedExchange.passphrase &&
-      !passphrase
-    ) {
-      showAlert(
-        'Esta exchange requer passphrase.'
-      );
-      return;
-    }
-
-    if (selectedExchange.uid && !uid) {
-      showAlert(
-        'Esta exchange requer UID.'
-      );
-      return;
-    }
-
-    const btn =
-      document.getElementById('submitBtn');
-
-    btn.disabled = true;
-
-    btn.innerHTML =
-      '<div class="spinner"></div> Conectando…';
-
-    try {
-      const body = {
-        exchange_type: selectedExchange.id,
-        api_key: apiKey,
-        api_secret: apiSecret
-      };
-
-      if (passphrase) {
-        body.passphrase = passphrase;
-      }
-
-      if (uid) {
-        body.uid = uid;
-      }
-
-      const res = await fetch(
-        `${API_BASE}/connect/session/${sessionToken}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type':
-              'application/json'
-          },
-          body: JSON.stringify(body)
         }
-      );
+      }
+      // ─────────────────────────────────────────────────────────────
+      // SELECT EXCHANGE
+      // ─────────────────────────────────────────────────────────────
+      function selectExchange(exc) {
+        selectedExchange = exc;
 
-      const data = await res.json();
+        document
+          .querySelectorAll('.exc-btn')
+          .forEach(b =>
+            b.classList.remove('selected')
+          );
 
-      if (!res.ok || !data.success) {
-        showAlert(
-          data.error ||
-            'Erro ao conectar exchange.'
-        );
+        document
+          .querySelector(
+            `.exc-btn[data-id="${exc.id}"]`
+          )
+          ?.classList.add('selected');
 
-        btn.disabled = false;
+        const passphraseField =
+          document.getElementById(
+            'passphraseField'
+          );
+
+        const uidField =
+          document.getElementById('uidField');
+
+        if (passphraseField) {
+          passphraseField.style.display =
+            exc.passphrase ? 'block' : 'none';
+        }
+
+        if (uidField) {
+          uidField.style.display =
+            exc.uid ? 'block' : 'none';
+        }
+
+        if (exc.uid) {
+          document.getElementById(
+            'uidLabel'
+          ).textContent =
+            (exc.uidLabel || 'UID') + ' *';
+
+          document.getElementById(
+            'uid'
+          ).placeholder =
+            'Cole seu ' +
+            (exc.uidLabel || 'UID');
+
+          document.getElementById(
+            'uidHint'
+          ).textContent =
+            exc.uidHint ||
+            'Número de identificação da conta.';
+        }
+
+        hideAlert();
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // STATUS POLLING
+      // ─────────────────────────────────────────────────────────────
+      async function checkStatus(initial) {
+        try {
+          const res = await fetch(
+            `${API_BASE}/connect/session/${sessionToken}`
+          );
+
+          if (!res.ok) {
+            if (initial) showPanel('invalid');
+            return;
+          }
+
+          const data = await res.json();
+
+          if (data.status === 'completed') {
+            clearInterval(pollTimer);
+            showPanel('success');
+            return;
+          }
+
+          if (data.status === 'expired') {
+            clearInterval(pollTimer);
+            showPanel('expired');
+            return;
+          }
+
+          if (data.status === 'revoked') {
+            clearInterval(pollTimer);
+            showPanel('revoked');
+            return;
+          }
+
+          if (initial) {
+            showPanel('form');
+
+            pollTimer = setInterval(
+              () => checkStatus(false),
+              2500
+            );
+          }
+
+        } catch {
+          if (initial) {
+            showPanel('invalid');
+          }
+        }
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // SUBMIT
+      // ─────────────────────────────────────────────────────────────
+      async function handleSubmit() {
+        hideAlert();
+
+        if (!selectedExchange) {
+          showAlert(
+            'Selecione uma exchange.'
+          );
+          return;
+        }
+
+        const apiKey =
+          document
+            .getElementById('apiKey')
+            .value.trim();
+
+        const apiSecret =
+          document
+            .getElementById('apiSecret')
+            .value.trim();
+
+        const passphrase =
+          document
+            .getElementById('passphrase')
+            .value.trim();
+
+        const uid =
+          document
+            .getElementById('uid')
+            .value.trim();
+
+        if (!apiKey || !apiSecret) {
+          showAlert(
+            'Preencha API Key e API Secret.'
+          );
+          return;
+        }
+
+        if (
+          selectedExchange.passphrase &&
+          !passphrase
+        ) {
+          showAlert(
+            'Esta exchange requer passphrase.'
+          );
+          return;
+        }
+
+        if (selectedExchange.uid && !uid) {
+          showAlert(
+            'Esta exchange requer UID.'
+          );
+          return;
+        }
+
+        const btn =
+          document.getElementById('submitBtn');
+
+        btn.disabled = true;
 
         btn.innerHTML =
-          'Conectar exchange';
+          '<div class="spinner"></div> Conectando…';
 
-        return;
+        try {
+          const body = {
+            exchange_type: selectedExchange.id,
+            api_key: apiKey,
+            api_secret: apiSecret
+          };
+
+          if (passphrase) {
+            body.passphrase = passphrase;
+          }
+
+          if (uid) {
+            body.uid = uid;
+          }
+
+          const res = await fetch(
+            `${API_BASE}/connect/session/${sessionToken}`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
+              body: JSON.stringify(body)
+            }
+          );
+
+          const data = await res.json();
+
+          if (!res.ok || !data.success) {
+            showAlert(
+              data.error ||
+              'Erro ao conectar exchange.'
+            );
+
+            btn.disabled = false;
+
+            btn.innerHTML =
+              'Conectar exchange';
+
+            return;
+          }
+
+          await loadConnectedExchanges();
+
+          await buildExchangeGrid();
+
+          clearInterval(pollTimer);
+
+          showPanel('success');
+
+        } catch (err) {
+          console.error(err);
+
+          showAlert(
+            'Erro de conexão.'
+          );
+
+          btn.disabled = false;
+
+          btn.innerHTML =
+            'Conectar exchange';
+        }
       }
 
-      await loadConnectedExchanges();
+      // ─────────────────────────────────────────────────────────────
+      // CONNECT ANOTHER
+      // ─────────────────────────────────────────────────────────────
+      async function connectAnother() {
+        document.getElementById('apiKey').value =
+          '';
 
-      await buildExchangeGrid();
+        document.getElementById(
+          'apiSecret'
+        ).value = '';
 
-      clearInterval(pollTimer);
+        document.getElementById(
+          'passphrase'
+        ).value = '';
 
-      showPanel('success');
+        document.getElementById('uid').value =
+          '';
 
-    } catch (err) {
-      console.error(err);
+        selectedExchange = null;
 
-      showAlert(
-        'Erro de conexão.'
-      );
+        document
+          .querySelectorAll('.exc-btn')
+          .forEach(b =>
+            b.classList.remove('selected')
+          );
 
-      btn.disabled = false;
+        document.getElementById(
+          'passphraseField'
+        ).style.display = 'none';
 
-      btn.innerHTML =
-        'Conectar exchange';
-    }
-  }
+        document.getElementById(
+          'uidField'
+        ).style.display = 'none';
 
-  // ─────────────────────────────────────────────────────────────
-  // CONNECT ANOTHER
-  // ─────────────────────────────────────────────────────────────
-  async function connectAnother() {
-    document.getElementById('apiKey').value =
-      '';
+        await buildExchangeGrid();
 
-    document.getElementById(
-      'apiSecret'
-    ).value = '';
+        hideAlert();
 
-    document.getElementById(
-      'passphrase'
-    ).value = '';
+        showPanel('form');
+      }
 
-    document.getElementById('uid').value =
-      '';
-
-    selectedExchange = null;
-
-    document
-      .querySelectorAll('.exc-btn')
-      .forEach(b =>
-        b.classList.remove('selected')
-      );
-
-    document.getElementById(
-      'passphraseField'
-    ).style.display = 'none';
-
-    document.getElementById(
-      'uidField'
-    ).style.display = 'none';
-
-    await buildExchangeGrid();
-
-    hideAlert();
-
-    showPanel('form');
-  }
-
-  // ─────────────────────────────────────────────────────────────
-  // LOGOUT
-  // ─────────────────────────────────────────────────────────────
-  async function handleLogout() {
-    if (
-      !confirm(
-        'Encerrar sessão web?'
-      )
-    ) {
-      return;
-    }
-
-    try {
-      await fetch(
-        `${API_BASE}/connect/session/${sessionToken}/end`,
-        {
-          method: 'DELETE'
+      // ─────────────────────────────────────────────────────────────
+      // LOGOUT
+      // ─────────────────────────────────────────────────────────────
+      async function handleLogout() {
+        if (
+          !confirm(
+            'Encerrar sessão web?'
+          )
+        ) {
+          return;
         }
-      );
-    } catch (_) {}
 
-    sessionToken = null;
+        try {
+          await fetch(
+            `${API_BASE}/connect/session/${sessionToken}/end`,
+            {
+              method: 'DELETE'
+            }
+          );
+        } catch (_) { }
 
-    clearInterval(pollTimer);
+        sessionToken = null;
 
-    clearInterval(qrPollTimer);
+        clearInterval(pollTimer);
 
-    startQrLoginFlow();
-  }
+        clearInterval(qrPollTimer);
 
-  // ─────────────────────────────────────────────────────────────
-  // SIDEBAR ERROR
-  // ─────────────────────────────────────────────────────────────
-  function renderSidebarError() {
-    const el =
-      document.getElementById('sbList');
+        startQrLoginFlow();
+      }
 
-    if (!el) return;
+      // ─────────────────────────────────────────────────────────────
+      // SIDEBAR ERROR
+      // ─────────────────────────────────────────────────────────────
+      function renderSidebarError() {
+        const el =
+          document.getElementById('sbList');
 
-    el.innerHTML = `
+        if (!el) return;
+
+        el.innerHTML = `
       <p class="sb-empty">
         Não foi possível carregar.
       </p>
     `;
-  }
+      }
 
-  // ─────────────────────────────────────────────────────────────
-  // ALERTS
-  // ─────────────────────────────────────────────────────────────
-  function showAlert(msg) {
-    const el =
-      document.getElementById(
-        'alertError'
-      );
-
-    const txt =
-      document.getElementById(
-        'alertErrorText'
-      );
-
-    txt.textContent = msg;
-
-    el.className =
-      'alert error visible';
-  }
-
-  function hideAlert() {
-    document.getElementById(
-      'alertError'
-    ).className = 'alert error';
-  }
-
-  // ─────────────────────────────────────────────────────────────
-  // PANELS
-  // ─────────────────────────────────────────────────────────────
-  const PANEL_IDS = {
-    qrLogin: 'panelQrLogin',
-    success: 'panelSuccess',
-    expired: 'panelExpired',
-    invalid: 'panelInvalid',
-    revoked: 'panelRevoked',
-    form: 'panelForm',
-  };
-
-  function showPanel(name) {
-    currentPanel = name;
-
-    Object.entries(PANEL_IDS).forEach(
-      ([key, id]) => {
+      // ─────────────────────────────────────────────────────────────
+      // ALERTS
+      // ─────────────────────────────────────────────────────────────
+      function showAlert(msg) {
         const el =
-          document.getElementById(id);
+          document.getElementById(
+            'alertError'
+          );
 
-        if (!el) return;
+        const txt =
+          document.getElementById(
+            'alertErrorText'
+          );
 
-        el.classList.toggle(
-          'active',
-          key === name
+        txt.textContent = msg;
+
+        el.className =
+          'alert error visible';
+      }
+
+      function hideAlert() {
+        document.getElementById(
+          'alertError'
+        ).className = 'alert error';
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // PANELS
+      // ─────────────────────────────────────────────────────────────
+      const PANEL_IDS = {
+        qrLogin: 'panelQrLogin',
+        success: 'panelSuccess',
+        expired: 'panelExpired',
+        invalid: 'panelInvalid',
+        revoked: 'panelRevoked',
+        form: 'panelForm',
+      };
+
+      function showPanel(name) {
+        currentPanel = name;
+
+        Object.entries(PANEL_IDS).forEach(
+          ([key, id]) => {
+            const el =
+              document.getElementById(id);
+
+            if (!el) return;
+
+            el.classList.toggle(
+              'active',
+              key === name
+            );
+          }
         );
       }
-    );
-  }
-</script>
+    </script>
 </body>
 
 </html>
