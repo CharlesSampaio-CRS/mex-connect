@@ -14,6 +14,31 @@
     /* ─────────────────────────────────────────────
    BODY
 ───────────────────────────────────────────── */
+.grid-empty {
+  grid-column: 1 / -1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  min-height: 72px;
+
+  padding: 14px;
+
+  border-radius: 14px;
+
+  background: var(--surface2);
+  border: 1px solid var(--border);
+
+  color: var(--text2);
+
+  font-size: 13px;
+  line-height: 1.5;
+
+  word-break: keep-all;
+}
     .logo {
       display: flex;
       align-items: center;
@@ -1574,6 +1599,29 @@
       let currentPanel = null;
       let connecteds = [];
 
+      /** Catálogo Mongo usa requires_*; UI legada usa passphrase/uid. */
+      function normalizeExchange(exc) {
+        const id = exc.ccxt_id || exc.exchange_type || exc.id;
+        return {
+          ...exc,
+          id,
+          name: exc.name || exc.display_name || exc.nome,
+          passphrase: Boolean(exc.requires_passphrase ?? exc.passphrase),
+          uid: Boolean(exc.requires_uid ?? exc.uid),
+          uidLabel: exc.uid_label ?? exc.uidLabel ?? 'UID',
+          uidHint:
+            exc.uid_placeholder ??
+            exc.uidHint ??
+            'Número de identificação da sua conta.',
+          passphraseLabel:
+            exc.passphrase_label ?? exc.passphraseLabel ?? 'Passphrase',
+          passphrasePlaceholder:
+            exc.passphrase_placeholder ??
+            exc.passphrasePlaceholder ??
+            'Passphrase da exchange',
+        };
+      }
+
       // ─────────────────────────────────────────────────────────────
       // INIT
       // ─────────────────────────────────────────────────────────────
@@ -1961,19 +2009,12 @@
               exc.ccxt_id ||
               exc.exchange_type;
 
-            btn.onclick = () =>
-              selectExchange({
-                ...exc,
-                id:
-                  exc.ccxt_id ||
-                  exc.exchange_type,
-                name:
-                  exc.name ||
-                  exc.display_name,
-              });
+            const normalized = normalizeExchange(exc);
+
+            btn.onclick = () => selectExchange(normalized);
 
             btn.innerHTML = `
-        ${exc.passphrase || exc.uid
+        ${normalized.passphrase || normalized.uid
                 ? `
               <div
                 class="exc-badge"
@@ -2039,6 +2080,18 @@
         if (passphraseField) {
           passphraseField.style.display =
             exc.passphrase ? 'block' : 'none';
+
+          if (exc.passphrase) {
+            const passphraseLabel = document.querySelector(
+              '#passphraseField label[for="passphrase"]'
+            );
+            if (passphraseLabel) {
+              passphraseLabel.textContent =
+                (exc.passphraseLabel || 'Passphrase') + ' *';
+            }
+            document.getElementById('passphrase').placeholder =
+              exc.passphrasePlaceholder || 'Passphrase da exchange';
+          }
         }
 
         if (uidField) {
@@ -2055,6 +2108,7 @@
           document.getElementById(
             'uid'
           ).placeholder =
+            exc.uid_placeholder ||
             'Cole seu ' +
             (exc.uidLabel || 'UID');
 
