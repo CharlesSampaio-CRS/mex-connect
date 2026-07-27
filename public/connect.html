@@ -1592,6 +1592,66 @@
     <script>
       const API_BASE = 'https://api.mex.app.br/api/v1';
 
+      function b64Standard(bytes) {
+        const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+        let s = '';
+        for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]);
+        return btoa(s);
+      }
+
+      /** ECDH-AES-GCM alinhado ao backend (info mex-connect-v1). */
+      async function encryptConnectCredentials(token, exchangeType, payload) {
+        if (!window.crypto || !window.crypto.subtle) {
+          throw new Error('Este navegador não suporta Web Crypto. Atualize o Chrome/Firefox.');
+        }
+        const pubRes = await fetch(`${API_BASE}/connect/session/${token}/pubkey`);
+        const pubData = await pubRes.json();
+        if (!pubRes.ok || !pubData.pubkey || !pubData.pubkey.x) {
+          throw new Error(pubData.error || 'Falha ao obter chave pública da sessão');
+        }
+        const serverKey = await crypto.subtle.importKey(
+          'jwk',
+          { kty: 'EC', crv: 'P-256', x: pubData.pubkey.x, y: pubData.pubkey.y },
+          { name: 'ECDH', namedCurve: 'P-256' },
+          false,
+          []
+        );
+        const clientPair = await crypto.subtle.generateKey(
+          { name: 'ECDH', namedCurve: 'P-256' },
+          true,
+          ['deriveBits']
+        );
+        const sharedBits = await crypto.subtle.deriveBits(
+          { name: 'ECDH', public: serverKey },
+          clientPair.privateKey,
+          256
+        );
+        const hkdfKey = await crypto.subtle.importKey('raw', sharedBits, 'HKDF', false, ['deriveKey']);
+        const aesKey = await crypto.subtle.deriveKey(
+          {
+            name: 'HKDF',
+            hash: 'SHA-256',
+            salt: new Uint8Array(32),
+            info: new TextEncoder().encode('mex-connect-v1'),
+          },
+          hkdfKey,
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['encrypt']
+        );
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const plain = new TextEncoder().encode(JSON.stringify(payload));
+        const cipherBuf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aesKey, plain);
+        const clientJwk = await crypto.subtle.exportKey('jwk', clientPair.publicKey);
+        return {
+          exchange_type: exchangeType,
+          encrypted: true,
+          ephemeral_pub: { kty: 'EC', crv: 'P-256', x: clientJwk.x, y: clientJwk.y },
+          ciphertext_b64: b64Standard(cipherBuf),
+          iv_b64: b64Standard(iv),
+        };
+      }
+
       let sessionToken = null;
       let selectedExchange = null;
       let pollTimer = null;
@@ -2238,19 +2298,24 @@
           '<div class="spinner"></div> Conectando…';
 
         try {
-          const body = {
-            exchange_type: selectedExchange.id,
+          const payload = {
             api_key: apiKey,
-            api_secret: apiSecret
+            api_secret: apiSecret,
           };
 
           if (passphrase) {
-            body.passphrase = passphrase;
+            payload.passphrase = passphrase;
           }
 
           if (uid) {
-            body.uid = uid;
+            payload.uid = uid;
           }
+
+          const body = await encryptConnectCredentials(
+            sessionToken,
+            selectedExchange.id,
+            payload
+          );
 
           const res = await fetch(
             `${API_BASE}/connect/session/${sessionToken}`,
@@ -2292,6 +2357,7 @@
           console.error(err);
 
           showAlert(
+            (err && err.message) ||
             'Erro de conexão.'
           );
 

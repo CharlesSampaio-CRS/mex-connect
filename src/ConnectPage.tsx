@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { encryptConnectCredentials } from "./lib/ecdhConnect";
 
 // Lista de exchanges (usando logos locais do admin)
 const EXCHANGES = [
@@ -142,20 +143,26 @@ const ConnectPage: React.FC = () => {
     startQrLoginFlow();
   }
 
-  // Envio do formulário
+  // Envio do formulário (credenciais cifradas com ECDH — nunca plain em produção)
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setAlert('');
     if (!selected) { setAlert('Selecione uma exchange antes de continuar.'); return; }
     if (!apiKey.trim() || !apiSecret.trim()) { setAlert('Preencha a API Key e o API Secret.'); return; }
+    if (!sessionToken) { setAlert('Sessão inválida. Escaneie o QR novamente.'); return; }
     const exc = EXCHANGES.find(e => e.id === selected);
     if (!exc) { setAlert('Selecione uma exchange válida.'); return; }
     if (exc.passphrase && !passphrase.trim()) { setAlert('Esta exchange requer uma Passphrase.'); return; }
     if (exc.uid && !uid.trim()) { setAlert('Esta exchange requer um ' + (exc.uidLabel || 'Memo (UID)') + '.'); return; }
     try {
-      const body: any = { exchange_type: exc.id, api_key: apiKey.trim(), api_secret: apiSecret.trim() };
-      if (passphrase) body.passphrase = passphrase.trim();
-      if (uid) body.uid = uid.trim();
+      const payload: { api_key: string; api_secret: string; passphrase?: string; uid?: string } = {
+        api_key: apiKey.trim(),
+        api_secret: apiSecret.trim(),
+      };
+      if (passphrase.trim()) payload.passphrase = passphrase.trim();
+      if (uid.trim()) payload.uid = uid.trim();
+
+      const body = await encryptConnectCredentials(API_BASE, sessionToken, exc.id, payload);
       const res = await fetch(`${API_BASE}/connect/session/${sessionToken}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
       });
@@ -165,10 +172,11 @@ const ConnectPage: React.FC = () => {
         return;
       }
       if (pollTimer.current) clearInterval(pollTimer.current);
-      loadConnectedExchanges(sessionToken!);
+      setApiKey(''); setApiSecret(''); setPassphrase(''); setUid('');
+      loadConnectedExchanges(sessionToken);
       setPanel('success');
-    } catch {
-      setAlert('Erro de conexão. Verifique sua internet e tente novamente.');
+    } catch (err: any) {
+      setAlert(err?.message || 'Erro de conexão. Verifique sua internet e tente novamente.');
     }
   }
 
