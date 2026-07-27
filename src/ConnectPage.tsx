@@ -98,21 +98,17 @@ const ConnectPage: React.FC = () => {
         const res = await fetch(`${API_BASE}/connect/session/${token}`);
         if (!res.ok) { setPanel('invalid'); return; }
         const data = await res.json();
-        if (data.status === 'revoked') { setPanel('revoked'); setSessionToken(null); return; }
-        if (data.status === 'expired') { setPanel('expired'); setSessionToken(null); return; }
+        if (data.status === 'revoked') { resetToQrLogin('Sessão encerrada pelo app. Escaneie um novo QR.'); return; }
+        if (data.status === 'expired') { resetToQrLogin('Sessão expirada. Escaneie um novo QR.'); return; }
         pollTimer.current = window.setInterval(async () => {
           try {
             const r = await fetch(`${API_BASE}/connect/session/${token}`);
             if (!r.ok) return;
             const s = await r.json();
             if (s.status === 'revoked') {
-              if (pollTimer.current) clearInterval(pollTimer.current);
-              setSessionToken(null);
-              setPanel('revoked');
+              resetToQrLogin('Sessão encerrada pelo app. Escaneie um novo QR.');
             } else if (s.status === 'expired') {
-              if (pollTimer.current) clearInterval(pollTimer.current);
-              setSessionToken(null);
-              setPanel('expired');
+              resetToQrLogin('Sessão expirada. Escaneie um novo QR.');
             }
           } catch { /* ignore */ }
         }, 2500);
@@ -123,7 +119,7 @@ const ConnectPage: React.FC = () => {
   }
 
   // QR login flow
-  async function startQrLoginFlow() {
+  async function startQrLoginFlow(statusHint?: string) {
     setPanel('qrLogin');
     setQrStatus('Gerando QR Code…');
     setQrImg('');
@@ -135,7 +131,7 @@ const ConnectPage: React.FC = () => {
       const qrToken = data.token;
       const qrUrl = data.qr_url;
       setQrImg('https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=0&data=' + encodeURIComponent(qrUrl));
-      setQrStatus('Aguardando leitura pelo app…');
+      setQrStatus(statusHint || 'Aguardando leitura pelo app…');
       qrPollTimer.current = setInterval(async () => {
         try {
           const r = await fetch(`${API_BASE}/auth/web-session/${qrToken}`);
@@ -163,26 +159,39 @@ const ConnectPage: React.FC = () => {
       const res = await fetch(`${API_BASE}/connect/session/${sessionToken}`);
       if (!res.ok) { if (initial) setPanel('invalid'); return; }
       const data = await res.json();
-      if (data.status === 'completed') { clearInterval(pollTimer.current!); setPanel('success'); return; }
-      if (data.status === 'expired')   { clearInterval(pollTimer.current!); setPanel('expired'); return; }
-      if (data.status === 'revoked')   { clearInterval(pollTimer.current!); setPanel('revoked'); return; }
+      if (data.status === 'completed') { setPanel('success'); return; }
+      if (data.status === 'expired')   { resetToQrLogin('Sessão expirada. Escaneie um novo QR.'); return; }
+      if (data.status === 'revoked')   { resetToQrLogin('Sessão encerrada pelo app. Escaneie um novo QR.'); return; }
       if (initial) { setPanel('form'); pollTimer.current = setInterval(() => checkStatus(false), 2500); }
     } catch { if (initial) setPanel('invalid'); }
+  }
+
+  function resetToQrLogin(message?: string) {
+    setSessionToken(null);
+    setUserName('');
+    setUserEmail('');
+    setConnectedExchanges([]);
+    setApiKey('');
+    setApiSecret('');
+    setPassphrase('');
+    setUid('');
+    setSelected(null);
+    setAlert('');
+    if (pollTimer.current) clearInterval(pollTimer.current);
+    if (qrPollTimer.current) clearInterval(qrPollTimer.current);
+    pollTimer.current = null;
+    qrPollTimer.current = null;
+    void startQrLoginFlow(message);
   }
 
   // Logout
   async function handleLogout() {
     if (!window.confirm('Encerrar esta sessão web?\n\nVocê precisará escanear um novo QR code para reconectar.')) return;
-    try { await fetch(`${API_BASE}/connect/session/${sessionToken}/end`, { method: 'DELETE' }); } catch {}
-    setSessionToken(null);
-    setUserName('');
-    setUserEmail('');
-    setConnectedExchanges([]);
-    setPanel('qrLogin');
-    setAlert('');
-    if (pollTimer.current) clearInterval(pollTimer.current);
-    if (qrPollTimer.current) clearInterval(qrPollTimer.current);
-    startQrLoginFlow();
+    const token = sessionToken;
+    try {
+      if (token) await fetch(`${API_BASE}/connect/session/${token}/end`, { method: 'DELETE' });
+    } catch {}
+    resetToQrLogin('Sessão encerrada. Escaneie um novo QR.');
   }
 
   // Envio do formulário (credenciais cifradas com ECDH — nunca plain em produção)

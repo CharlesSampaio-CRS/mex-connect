@@ -2228,17 +2228,12 @@
           }
 
           if (data.status === 'expired') {
-            clearInterval(pollTimer);
-            pollTimer = null;
-            showPanel('expired');
+            resetToQrLogin('Sessão expirada. Escaneie um novo QR.');
             return;
           }
 
           if (data.status === 'revoked') {
-            clearInterval(pollTimer);
-            pollTimer = null;
-            sessionToken = null;
-            showPanel('revoked');
+            resetToQrLogin('Sessão encerrada pelo app. Escaneie um novo QR.');
             return;
           }
 
@@ -2433,6 +2428,56 @@
       }
 
       // ─────────────────────────────────────────────────────────────
+      // RESET → tela inicial (QR)
+      // ─────────────────────────────────────────────────────────────
+      function clearSessionUi() {
+        sessionToken = null;
+        selectedExchange = null;
+        connecteds = [];
+
+        if (pollTimer) {
+          clearInterval(pollTimer);
+          pollTimer = null;
+        }
+        if (qrPollTimer) {
+          clearInterval(qrPollTimer);
+          qrPollTimer = null;
+        }
+
+        document.getElementById('headerSession')?.classList.remove('visible');
+        document.getElementById('appLayout')?.classList.remove('with-sidebar');
+        document.getElementById('sidebar')?.classList.remove('visible');
+        document.getElementById('tokenBadge')?.classList.remove('visible');
+
+        const nameEl = document.getElementById('headerUserName');
+        const emailEl = document.getElementById('headerUserEmail');
+        if (nameEl) nameEl.textContent = '';
+        if (emailEl) emailEl.textContent = '';
+
+        const apiKey = document.getElementById('apiKey');
+        const apiSecret = document.getElementById('apiSecret');
+        const passphrase = document.getElementById('passphrase');
+        const uid = document.getElementById('uid');
+        if (apiKey) apiKey.value = '';
+        if (apiSecret) apiSecret.value = '';
+        if (passphrase) passphrase.value = '';
+        if (uid) uid.value = '';
+
+        const sbList = document.getElementById('sbList');
+        if (sbList) {
+          sbList.innerHTML =
+            '<p class="sb-empty">Nenhuma exchange conectada ainda.<br/>Use o formulário ao lado.</p>';
+        }
+
+        hideAlert();
+      }
+
+      function resetToQrLogin(message) {
+        clearSessionUi();
+        startQrLoginFlow(message);
+      }
+
+      // ─────────────────────────────────────────────────────────────
       // LOGOUT
       // ─────────────────────────────────────────────────────────────
       async function handleLogout() {
@@ -2444,22 +2489,19 @@
           return;
         }
 
+        const token = sessionToken;
         try {
-          await fetch(
-            `${API_BASE}/connect/session/${sessionToken}/end`,
-            {
-              method: 'DELETE'
-            }
-          );
+          if (token) {
+            await fetch(
+              `${API_BASE}/connect/session/${token}/end`,
+              {
+                method: 'DELETE'
+              }
+            );
+          }
         } catch (_) { }
 
-        sessionToken = null;
-
-        clearInterval(pollTimer);
-
-        clearInterval(qrPollTimer);
-
-        startQrLoginFlow();
+        resetToQrLogin('Sessão encerrada. Escaneie um novo QR.');
       }
 
       // ─────────────────────────────────────────────────────────────
