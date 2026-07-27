@@ -1787,7 +1787,7 @@
       // ─────────────────────────────────────────────────────────────
       // QR LOGIN FLOW
       // ─────────────────────────────────────────────────────────────
-      async function startQrLoginFlow() {
+      async function startQrLoginFlow(statusHint) {
         showPanel('qrLogin');
 
         setQrStatus('loading', 'Gerando QR Code…');
@@ -1832,7 +1832,7 @@
 
           setQrStatus(
             'loading',
-            'Aguardando leitura pelo app…'
+            statusHint || 'Aguardando leitura pelo app…'
           );
 
           qrPollTimer = setInterval(async () => {
