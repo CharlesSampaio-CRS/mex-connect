@@ -84,13 +84,42 @@ const ConnectPage: React.FC = () => {
     }
   }
 
-  // Ativar sessão: mostra sidebar, badge, carrega dados
+  // Ativar sessão: sidebar + poll de revoke/expiração (~2.5s)
   function activateSession(token: string, name: string|null, email: string|null) {
     setSessionToken(token);
     setUserName(name || '');
     setUserEmail(email || '');
     setPanel('form');
     loadConnectedExchanges(token);
+    if (pollTimer.current) clearInterval(pollTimer.current);
+    // dispara checkStatus com o token novo (state assíncrono — usa token direto)
+    void (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/connect/session/${token}`);
+        if (!res.ok) { setPanel('invalid'); return; }
+        const data = await res.json();
+        if (data.status === 'revoked') { setPanel('revoked'); setSessionToken(null); return; }
+        if (data.status === 'expired') { setPanel('expired'); setSessionToken(null); return; }
+        pollTimer.current = window.setInterval(async () => {
+          try {
+            const r = await fetch(`${API_BASE}/connect/session/${token}`);
+            if (!r.ok) return;
+            const s = await r.json();
+            if (s.status === 'revoked') {
+              if (pollTimer.current) clearInterval(pollTimer.current);
+              setSessionToken(null);
+              setPanel('revoked');
+            } else if (s.status === 'expired') {
+              if (pollTimer.current) clearInterval(pollTimer.current);
+              setSessionToken(null);
+              setPanel('expired');
+            }
+          } catch { /* ignore */ }
+        }, 2500);
+      } catch {
+        setPanel('invalid');
+      }
+    })();
   }
 
   // QR login flow

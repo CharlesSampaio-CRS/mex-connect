@@ -1709,14 +1709,12 @@
           return;
         }
 
-        // Com token → sessão ativa
+        // Com token → sessão ativa (poll de revoke inicia em activateSession)
         activateSession(sessionToken, null, null);
 
         await loadConnectedExchanges();
 
         await buildExchangeGrid();
-
-        checkStatus(true);
       });
 
       // ─────────────────────────────────────────────────────────────
@@ -1780,6 +1778,10 @@
           badgeText.textContent =
             'Sessão: ' + token.slice(0, 8) + '…';
         }
+
+        // Poll contínuo: detecta revoke do app / expiração em ~2.5s
+        if (pollTimer) clearInterval(pollTimer);
+        checkStatus(true);
       }
 
       // ─────────────────────────────────────────────────────────────
@@ -2212,26 +2214,35 @@
           const data = await res.json();
 
           if (data.status === 'completed') {
-            clearInterval(pollTimer);
-            showPanel('success');
+            // UI de sucesso, mas mantém poll (revoke pelo app deve deslogar na hora)
+            if (currentPanel !== 'success' && currentPanel !== 'form') {
+              showPanel('success');
+            }
+            if (initial) {
+              pollTimer = setInterval(
+                () => checkStatus(false),
+                2500
+              );
+            }
             return;
           }
 
           if (data.status === 'expired') {
             clearInterval(pollTimer);
+            pollTimer = null;
             showPanel('expired');
             return;
           }
 
           if (data.status === 'revoked') {
             clearInterval(pollTimer);
+            pollTimer = null;
+            sessionToken = null;
             showPanel('revoked');
             return;
           }
 
-          if (initial) {
-            showPanel('form');
-
+          if (initial && !pollTimer) {
             pollTimer = setInterval(
               () => checkStatus(false),
               2500
@@ -2362,8 +2373,7 @@
 
           await buildExchangeGrid();
 
-          clearInterval(pollTimer);
-
+          // poll já inicia em activateSession — não clearInterval aqui
           showPanel('success');
 
         } catch (err) {
