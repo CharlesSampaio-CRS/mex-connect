@@ -50,10 +50,23 @@ const ConnectPage: React.FC = () => {
   const pollTimer = useRef<number|null>(null);
   const qrPollTimer = useRef<number|null>(null);
 
-  // Utilitário: buscar params da URL
+  // Utilitário: hash #t= (preferido) ou ?token= (legado)
   function getTokenFromUrl() {
     const params = new URLSearchParams(window.location.search);
-    return params.get('token');
+    let t = params.get('token');
+    if (!t && window.location.hash) {
+      const raw = window.location.hash.replace(/^#/, '');
+      if (raw.includes('=')) {
+        const hp = new URLSearchParams(raw);
+        t = hp.get('t') || hp.get('token');
+      } else if (/^[0-9a-f-]{36}$/i.test(raw)) {
+        t = raw;
+      }
+    }
+    if (t) {
+      try { history.replaceState(null, '', window.location.pathname); } catch { /* ignore */ }
+    }
+    return t;
   }
 
   // Carregar exchanges conectadas (sidebar)

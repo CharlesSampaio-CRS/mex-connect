@@ -1687,8 +1687,21 @@
       // ─────────────────────────────────────────────────────────────
       document.addEventListener('DOMContentLoaded', async () => {
         const params = new URLSearchParams(window.location.search);
+        let tokenFromUrl = params.get('token');
+        if (!tokenFromUrl && window.location.hash) {
+          const raw = window.location.hash.replace(/^#/, '');
+          if (raw.includes('=')) {
+            const hp = new URLSearchParams(raw);
+            tokenFromUrl = hp.get('t') || hp.get('token');
+          } else if (/^[0-9a-f-]{36}$/i.test(raw)) {
+            tokenFromUrl = raw;
+          }
+        }
+        if (tokenFromUrl) {
+          try { history.replaceState(null, '', window.location.pathname); } catch (_) {}
+        }
 
-        sessionToken = params.get('token');
+        sessionToken = tokenFromUrl;
 
         // Sem token → QR Login
         if (!sessionToken) {
